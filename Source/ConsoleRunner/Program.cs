@@ -64,6 +64,30 @@ if (args.Length == 0)
                 Console.WriteLine(Expression.Parse(msg).Eval([]).ToString());
             }
         }
+        else if (line.StartsWith("download "))
+        {
+            string taskName = line[8..^0].Trim();
+
+            if (taskName != "")
+            {
+                TaskDownloader.Download(taskName);
+            }
+        }
+        else if (line.StartsWith("strings "))
+        {
+            string msg = line[6..^0].Trim();
+
+            if (msg != "")
+            {
+                foreach (string token in msg.Split(' '))
+                {
+                    if (token.StartsWith("S"))
+                    {
+                        Console.WriteLine(new Str(token).ToString());
+                    }
+                }
+            }
+        }
         else if(line == "exit")
         {
             return;
@@ -76,6 +100,8 @@ if (args.Length == 0)
                     send-raw  Send a raw ICFP message to the server
                     encode    Encode a string to ICFP
                     decode    Decode an ICFP string
+                    download  Downloads a task and its problems
+                    strings   Outputs all strings in the ICFP
                     exit      Exit
             """);
         }
@@ -123,7 +149,7 @@ static string Unparse(string expr)
             {
                 str += " " + token[0..^1];
                 inStr = false;
-                strs.Add("S" + Str.Make(str).MachineValue);
+                strs.Add(Str.Make(str).ToICFP());
                 str = "";
             }
             else
@@ -136,15 +162,15 @@ static string Unparse(string expr)
 
         if (long.TryParse(token, out long n))
         {
-            strs.Add("I" + new Integer(n).MachineValue);
+            strs.Add(new Integer(n).ToICFP());
         }
         else if (token.ToLower() == "false")
         {
-            strs.Add("F");
+            strs.Add(Bool.False.ToICFP());
         }
         else if (token.ToLower() == "true")
         {
-            strs.Add("T");
+            strs.Add(Bool.True.ToICFP());
         }
         else if (token.ToLower() == "if")
         {
@@ -158,7 +184,7 @@ static string Unparse(string expr)
         {
             if (token.EndsWith('"'))
             {
-                strs.Add("S" + Str.Make(token[1..^1]).MachineValue);
+                strs.Add(Str.Make(token[1..^1]).ToICFP());
             }
             else
             {
@@ -172,7 +198,7 @@ static string Unparse(string expr)
         }
         else
         {
-            strs.Add("S" + Str.Make(token).MachineValue);
+            strs.Add(Str.Make(token).ToICFP());
         }
     }
 
