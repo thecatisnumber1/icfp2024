@@ -31,7 +31,7 @@ if (args.Length == 0)
                 Console.WriteLine("-----End reply-----");
             }
         }
-        if (line.StartsWith("send-raw "))
+        else if (line.StartsWith("send-raw "))
         {
             string msg = line[9..^0].Trim();
 
@@ -95,14 +95,14 @@ if (args.Length == 0)
         else
         {
             Console.WriteLine("""
-                Unknown command. Try:
-                    send      Send a message to the server
-                    send-raw  Send a raw ICFP message to the server
-                    encode    Encode a string to ICFP
-                    decode    Decode an ICFP string
-                    download  Downloads a task and its problems
-                    strings   Outputs all strings in the ICFP
-                    exit      Exit
+            Unknown command. Try:
+                send <expr>          Send a message to the server
+                send-raw <icfp>      Send a raw ICFP message to the server
+                encode <expr>        Encode a string to ICFP
+                decode <icfp>        Decode an ICFP string
+                download <taskname>  Downloads a task and its problems
+                strings <icfp>       Outputs all strings in the ICFP
+                exit                 Exit
             """);
         }
 
