@@ -40,11 +40,9 @@ public static class RestConnector
     public static string PostFile(string url, string content)
     {
         using var client = new HttpClient();
-        using var formData = new MultipartFormDataContent();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
-        formData.Add(new StringContent(content), "file", "file");
-        var result = client.PostAsync(url, formData).Result;
+        var result = client.PostAsync(url, new StringContent(content)).Result;
 
         return result.Content.ReadAsStringAsync().Result;
     }
