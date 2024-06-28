@@ -11,6 +11,25 @@ public class Unary : Expression
         Operand = operand;
     }
 
+    public Value Eval(Dictionary<int, Value> environment)
+    {
+        var operand = Operand.Eval(environment);
+
+        switch (Operator)
+        {
+            case '-':
+                return new Integer(-operand.AsInt());
+            case '!':
+                return Bool.Make(!operand.AsBool());
+            case '#':
+                return new Integer(operand.AsMachineString());
+            case '$':
+                return new Str(operand.AsMachineInt());
+            default:
+                throw new EvaluationException($"Invalid unary operator {Operator}");
+        }
+    }
+
     public override string ToString()
     {
         return $"{Operator}{Operand}";

@@ -21,6 +21,11 @@ public class Bool : Value
         return Value;
     }
 
+    public override bool EqualsValue(Value other)
+    {
+        return Value == other.AsBool();
+    }
+
     public override string ToString()
     {
         return Value.ToString();

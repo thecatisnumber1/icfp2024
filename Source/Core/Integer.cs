@@ -18,6 +18,11 @@ public class Integer : Value
     public override long AsInt() => Value;
     // public override string AsMachineInt() => MachineValue;
 
+    public override bool EqualsValue(Value other)
+    {
+        return Value == other.AsInt();
+    }
+
     public override string ToString()
     {
         return Value.ToString();

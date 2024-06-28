@@ -2,6 +2,8 @@
 
 public abstract class Value : Expression
 {
+    public Value Eval(Dictionary<int, Value> environment) => this;
+
     public virtual bool AsBool()
     {
         throw new EvaluationException("Not a Bool");
@@ -26,4 +28,6 @@ public abstract class Value : Expression
     {
         throw new EvaluationException("Not a String");
     }
+
+    public abstract bool EqualsValue(Value other);
 }

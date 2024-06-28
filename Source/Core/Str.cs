@@ -20,6 +20,11 @@ public class Str : Value
         return MachineValue;
     }
 
+    public override bool EqualsValue(Value other)
+    {
+        return MachineValue == other.AsMachineString();
+    }
+
     public override string ToString()
     {
         return Value.ToString();
