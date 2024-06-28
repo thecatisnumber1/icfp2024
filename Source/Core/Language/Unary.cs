@@ -1,4 +1,6 @@
-﻿namespace Core;
+﻿using System.Text;
+
+namespace Core;
 
 public class Unary : Expression
 {
@@ -11,7 +13,13 @@ public class Unary : Expression
         Operand = operand;
     }
 
-    public Value Eval(Dictionary<long, Value> environment)
+    internal override void AppendICFP(StringBuilder builder)
+    {
+        builder.Append($"U{Operator} ");
+        Operand.AppendICFP(builder);
+    }
+
+    public override Value Eval(Dictionary<long, Value> environment)
     {
         var operand = Operand.Eval(environment);
 

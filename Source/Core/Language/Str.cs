@@ -1,4 +1,6 @@
-﻿namespace Core;
+﻿using System.Text;
+
+namespace Core;
 
 public class Str : Value
 {
@@ -13,6 +15,11 @@ public class Str : Value
     public static Str Make(string value)
     {
         return new Str(Encodings.EncodeMachineString(value));
+    }
+
+    internal override void AppendICFP(StringBuilder builder)
+    {
+        builder.Append($"S{MachineValue}");
     }
 
     public override string AsString()

@@ -16,7 +16,7 @@ public class DecodeTest
         Assert.AreEqual(BASE, ALL_DECODED_CHARS.Length);
     }
 
-    private static T Parse<T>(string icfp)
+    private static T Parse<T>(string icfp) where T : Expression
     {
         var expr = Expression.Parse(icfp);
         Assert.IsInstanceOfType(expr, typeof(T));

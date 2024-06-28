@@ -1,8 +1,19 @@
-﻿namespace Core;
+﻿using System.Text;
 
-public interface Expression
+namespace Core;
+
+public abstract class Expression
 {
-    public Value Eval(Dictionary<long, Value> environment);
+    public abstract Value Eval(Dictionary<long, Value> environment);
+
+    public string ToICFP()
+    {
+        StringBuilder builder = new();
+        AppendICFP(builder);
+        return builder.ToString();
+    }
+
+    internal abstract void AppendICFP(StringBuilder builder);
 
     public static Expression Parse(string icfp)
     {

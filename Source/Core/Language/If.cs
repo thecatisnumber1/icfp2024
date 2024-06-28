@@ -1,4 +1,6 @@
-﻿namespace Core;
+﻿using System.Text;
+
+namespace Core;
 
 public class If : Expression
 {
@@ -13,7 +15,17 @@ public class If : Expression
         Else = @else;
     }
 
-    public Value Eval(Dictionary<long, Value> environment)
+    internal override void AppendICFP(StringBuilder builder)
+    {
+        builder.Append("? ");
+        Condition.AppendICFP(builder);
+        builder.Append(' ');
+        Then.AppendICFP(builder);
+        builder.Append(' ');
+        Else.AppendICFP(builder);
+    }
+
+    public override Value Eval(Dictionary<long, Value> environment)
     {
         var condition = Condition.Eval(environment);
 
