@@ -1,4 +1,6 @@
-﻿namespace Core;
+﻿using System.Text;
+
+namespace Core;
 
 public class Bool : Value
 {
@@ -14,6 +16,11 @@ public class Bool : Value
     private Bool(bool value)
     {
         Value = value;
+    }
+
+    internal override void AppendICFP(StringBuilder builder)
+    {
+        builder.Append(Value ? 'T' : 'F');
     }
 
     public override bool AsBool()

@@ -1,4 +1,6 @@
-﻿namespace Core;
+﻿using System.Text;
+
+namespace Core;
 
 public class Binary : Expression
 {
@@ -13,7 +15,7 @@ public class Binary : Expression
         Operator = op;
     }
 
-    public Value Eval(Dictionary<long, Value> environment)
+    public override Value Eval(Dictionary<long, Value> environment)
     {
         Value left = Left.Eval(environment);
         Value right = Right.Eval(environment);
@@ -36,6 +38,14 @@ public class Binary : Expression
             '$' => left.AsClosure().Apply(right),
             _ => throw new EvaluationException($"Invalid binary operator {Operator}"),
         };
+    }
+
+    internal override void AppendICFP(StringBuilder builder)
+    {
+        builder.Append($"B{Operator} ");
+        Left.AppendICFP(builder);
+        builder.Append(' ');
+        Right.AppendICFP(builder);
     }
 
     public override string ToString()

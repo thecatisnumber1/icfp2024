@@ -1,4 +1,6 @@
-﻿namespace Core;
+﻿using System.Text;
+
+namespace Core;
 
 public class Closure : Value
 {
@@ -9,6 +11,11 @@ public class Closure : Value
     {
         Lambda = lambda;
         Environment = environment;
+    }
+
+    internal override void AppendICFP(StringBuilder builder)
+    {
+        throw new NotImplementedException();
     }
 
     public override Closure AsClosure()

@@ -1,4 +1,6 @@
 ﻿
+using System.Text;
+
 namespace Core;
 
 public class Variable : Expression
@@ -10,7 +12,12 @@ public class Variable : Expression
         Key = Encodings.DecodeMachineInt(key);
     }
 
-    public Value Eval(Dictionary<long, Value> environment)
+    internal override void AppendICFP(StringBuilder builder)
+    {
+        builder.Append($"V{Encodings.EncodeMachineInt(Key)}");
+    }
+
+    public override Value Eval(Dictionary<long, Value> environment)
     {
         if (!environment.ContainsKey(Key)) {
             throw new EvaluationException($"Variable {Key} not found in environment");

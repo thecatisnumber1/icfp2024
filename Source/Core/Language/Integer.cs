@@ -1,4 +1,6 @@
-﻿namespace Core;
+﻿using System.Text;
+
+namespace Core;
 
 public class Integer : Value
 {
@@ -13,6 +15,11 @@ public class Integer : Value
     public Integer(string machineValue)
     {
         Value = Encodings.DecodeMachineInt(machineValue);
+    }
+
+    internal override void AppendICFP(StringBuilder builder)
+    {
+        builder.Append($"I{MachineValue}");
     }
 
     public override long AsInt() => Value;

@@ -2,7 +2,7 @@
 
 public abstract class Value : Expression
 {
-    public virtual Value Eval(Dictionary<long, Value> environment) => this;
+    public override Value Eval(Dictionary<long, Value> environment) => this;
 
     public virtual bool AsBool()
     {

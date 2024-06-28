@@ -1,4 +1,6 @@
-﻿namespace Core;
+﻿using System.Text;
+
+namespace Core;
 
 public class Lambda : Expression
 {
@@ -11,7 +13,13 @@ public class Lambda : Expression
         Content = content;
     }
 
-    public Value Eval(Dictionary<long, Value> environment)
+    internal override void AppendICFP(StringBuilder builder)
+    {
+        builder.Append($"L{Encodings.EncodeMachineInt(VariableKey)} ");
+        Content.AppendICFP(builder);
+    }
+
+    public override Value Eval(Dictionary<long, Value> environment)
     {
         return new Closure(this, environment);
     }
