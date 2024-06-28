@@ -21,6 +21,40 @@ public partial class MainWindow : Window
         SolverSelector.ItemsSource = solverList;
         SolverSelector.SelectedIndex = 0;
         ConsoleControl.LogMessage("Welcome to Squigglizer!");
+
+        #region Settings load and save
+        // Load saved settings
+        SquigglizerSettings? settings = SettingsSaver.Load<SquigglizerSettings>(SettingsSaver.LAST_SETTINGS_FILE);
+
+        // Apply saved settings
+        if (settings != null)
+        {
+            this.Width = settings.WindowWidth;
+            this.Height = settings.WindowHeight;
+            this.WindowState = settings.IsFullscreen ? WindowState.Maximized : WindowState.Normal;
+            this.Left = settings.WindowX;
+            this.Top = settings.WindowY;
+            this.SolverSelector.SelectedItem = settings.Solver;
+        }
+
+        // Set up auto-save for settings
+        void saveSettings()
+        {
+            SettingsSaver.Save(SettingsSaver.LAST_SETTINGS_FILE, new SquigglizerSettings(
+                (int)this.Left,
+                (int)this.Top,
+                (int)this.Width,
+                (int)this.Height,
+                this.WindowState == WindowState.Maximized,
+                this.SolverSelector.SelectedItem?.ToString()
+            ));
+        }
+
+        this.SizeChanged += (_, _) => saveSettings();
+        this.StateChanged += (_, _) => saveSettings();
+        this.LocationChanged += (_, _) => saveSettings();
+        this.SolverSelector.SelectionChanged += (_, _) => saveSettings();
+        #endregion
     }
 
     private void SolverSelector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
