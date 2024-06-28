@@ -3,7 +3,7 @@
 public class Integer : Value
 {
     public long Value { get; }
-    // public string MachineValue { get; }
+    public string MachineValue { get { return Encodings.EncodeMachineInt(Value); } }
 
     public Integer(long value)
     {
@@ -16,7 +16,7 @@ public class Integer : Value
     }
 
     public override long AsInt() => Value;
-    // public override string AsMachineInt() => MachineValue;
+    public override string AsMachineInt() => MachineValue;
 
     public override bool EqualsValue(Value other)
     {

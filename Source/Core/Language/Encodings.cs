@@ -31,6 +31,19 @@ public static class Encodings
         return result;
     }
 
+    public static string EncodeMachineInt(long value)
+    {
+        StringBuilder builder = new();
+
+        while (value > 0)
+        {
+            builder.Append((char)(MIN_CHAR + (char)(value % BASE)));
+            value /= BASE;
+        }
+
+        return new string(builder.ToString().Reverse().ToArray());
+    }
+
     public static string DecodeMachineString(string body)
     {
         StringBuilder builder = new();
@@ -43,6 +56,24 @@ public static class Encodings
             }
 
             builder.Append(CHAR_MAP[c - MIN_CHAR]);
+        }
+
+        return builder.ToString();
+    }
+
+    public static string EncodeMachineString(string value)
+    {
+        StringBuilder builder = new();
+
+        foreach (char c in value)
+        {
+            int index = CHAR_MAP.IndexOf(c);
+            if (index == -1)
+            {
+                throw new EvaluationException($"Invalid string literal character {c}");
+            }
+
+            builder.Append((char)(MIN_CHAR + index));
         }
 
         return builder.ToString();

@@ -71,7 +71,7 @@ public class DecodeTest
     [DataRow("I!\"", 1)] // Leading zero
     [DataRow("I/6", 1337)]
     [DataRow("I<PP}d", int.MaxValue)]
-    [DataRow("I1**0#VExW1", long.MaxValue)]
+    [DataRow("I1**0#VEx9D", long.MaxValue)]
     public void TestInt(string icfp, long expected)
     {
         long decoded = Parse<Integer>(icfp).AsInt();
@@ -96,7 +96,7 @@ public class DecodeTest
         Assert.AreEqual(new Integer(-3), Parse<Unary>("U- I$").Eval([]));
         Assert.AreEqual(Bool.False, Parse<Unary>("U! T").Eval([]));
         Assert.AreEqual(new Integer(15818151), Parse<Unary>("U# S4%34").Eval([]));
-        Assert.AreEqual(new Str("test"), Parse<Unary>("U$ I4%34").Eval([]));
+        Assert.AreEqual(Str.Make("test"), Parse<Unary>("U$ I4%34").Eval([]));
     }
 
     [TestMethod]

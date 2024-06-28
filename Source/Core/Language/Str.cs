@@ -10,6 +10,11 @@ public class Str : Value
         MachineValue = machineValue;
     }
 
+    public static Str Make(string value)
+    {
+        return new Str(Encodings.EncodeMachineString(value));
+    }
+
     public override string AsString()
     {
         return Value;
@@ -34,14 +39,14 @@ public class Str : Value
     {
         if (obj is Str other)
         {
-            return Value == other.Value;
+            return MachineValue == other.MachineValue;
         }
         return false;
     }
 
     public override int GetHashCode()
     {
-        return Value.GetHashCode();
+        return MachineValue.GetHashCode();
     }
 
 }
