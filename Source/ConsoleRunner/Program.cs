@@ -31,6 +31,21 @@ if (args.Length == 0)
                 Console.WriteLine("-----End reply-----");
             }
         }
+        if (line.StartsWith("send-raw "))
+        {
+            string msg = line[9..^0].Trim();
+
+            if (msg != "")
+            {
+                string icfpReply = Communicator.Send(msg);
+                Console.WriteLine("-----Begin raw reply-----");
+                Console.WriteLine(icfpReply);
+                Console.WriteLine("-----End raw reply-----");
+                Console.WriteLine("-----Begin reply-----");
+                Console.WriteLine(Expression.Parse(icfpReply).ToString() ?? "");
+                Console.WriteLine("-----End reply-----");
+            }
+        }
         else if (line.StartsWith("encode "))
         {
             string msg = line[7..^0].Trim();
@@ -57,10 +72,11 @@ if (args.Length == 0)
         {
             Console.WriteLine("""
                 Unknown command. Try:
-                    send    Send a message to the server
-                    encode  Encode a string to ICFP
-                    decode  Decode an ICFP string
-                    exit    Exit
+                    send      Send a message to the server
+                    send-raw  Send a raw ICFP message to the server
+                    encode    Encode a string to ICFP
+                    decode    Decode an ICFP string
+                    exit      Exit
             """);
         }
 
@@ -139,8 +155,15 @@ static string Unparse(string expr)
         }
         else if (token.StartsWith('"'))
         {
-            str += token[1..^0];
-            inStr = true;
+            if (token.EndsWith('"'))
+            {
+                strs.Add("S" + Str.Make(token[1..^1]).MachineValue);
+            }
+            else
+            {
+                str += token[1..^0];
+                inStr = true;
+            }
         }
         else
         {
