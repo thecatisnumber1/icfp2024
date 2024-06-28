@@ -27,7 +27,7 @@ if (args.Length == 0)
                 Console.WriteLine(icfpReply);
                 Console.WriteLine("-----End raw reply-----");
                 Console.WriteLine("-----Begin reply-----");
-                Console.WriteLine(Expression.Parse(icfpReply).ToString() ?? "");
+                Console.WriteLine(Expression.Parse(icfpReply).Eval([]).ToString() ?? "");
                 Console.WriteLine("-----End reply-----");
             }
         }
@@ -42,7 +42,7 @@ if (args.Length == 0)
                 Console.WriteLine(icfpReply);
                 Console.WriteLine("-----End raw reply-----");
                 Console.WriteLine("-----Begin reply-----");
-                Console.WriteLine(Expression.Parse(icfpReply).ToString() ?? "");
+                Console.WriteLine(Expression.Parse(icfpReply).Eval([]).ToString() ?? "");
                 Console.WriteLine("-----End reply-----");
             }
         }
@@ -61,7 +61,7 @@ if (args.Length == 0)
 
             if (msg != "")
             {
-                Console.WriteLine(Expression.Parse(msg).ToString());
+                Console.WriteLine(Expression.Parse(msg).Eval([]).ToString());
             }
         }
         else if(line == "exit")
@@ -113,6 +113,7 @@ static string Unparse(string expr)
     List<string> strs = [];
     bool inStr = false;
     string str = "";
+    bool inLambda = false;
 
     foreach (string token in expr.Split(' '))
     {
@@ -164,6 +165,10 @@ static string Unparse(string expr)
                 str += token[1..^0];
                 inStr = true;
             }
+        }
+        else if (token.StartsWith('(') && token.EndsWith(')'))
+        {
+
         }
         else
         {
