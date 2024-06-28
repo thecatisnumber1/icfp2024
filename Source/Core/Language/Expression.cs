@@ -39,6 +39,8 @@ public interface Expression
                 return new If(ParseHelper(tokens), ParseHelper(tokens), ParseHelper(tokens));
             case 'v':
                 return new Variable(token[1..]);
+            case 'L':
+                return new Lambda(token[1..], ParseHelper(tokens));
             default:
                 throw new EvaluationException($"Invalid token {token}");
         }

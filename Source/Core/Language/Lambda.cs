@@ -5,9 +5,9 @@ public class Lambda : Expression
     public long VariableKey { get; }
     public Expression Content { get; }
 
-    public Lambda(long variableKey, Expression content)
+    public Lambda(string variableKey, Expression content)
     {
-        VariableKey = variableKey;
+        VariableKey = Encodings.DecodeMachineInt(variableKey);
         Content = content;
     }
 
