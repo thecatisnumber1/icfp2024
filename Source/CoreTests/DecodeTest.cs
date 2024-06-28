@@ -128,7 +128,7 @@ public class DecodeTest
     [TestMethod]
     public void TestEvalLambda()
     {
-        Assert.AreEqual(Str.Make("Hello World!"), Parse<Unary>("B$ B$ L# L$ v# B. SB%,,/ S}Q/2,$_ IK").Eval([]));
+        Assert.AreEqual(Str.Make("Hello World!"), Parse<Binary>("B$ B$ L# L$ v# B. SB%,,/ S}Q/2,$_ IK").Eval([]));
     }
 
     [TestMethod]
