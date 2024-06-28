@@ -13,6 +13,12 @@ public class Lambda : Expression
         Content = content;
     }
 
+    public Lambda(long variableKey, Expression content)
+    {
+        VariableKey = variableKey;
+        Content = content;
+    }
+
     internal override void AppendICFP(StringBuilder builder)
     {
         builder.Append($"L{Encodings.EncodeMachineInt(VariableKey)} ");

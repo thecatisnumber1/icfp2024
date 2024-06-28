@@ -14,7 +14,7 @@ public class Variable : Expression
 
     internal override void AppendICFP(StringBuilder builder)
     {
-        builder.Append($"V{Encodings.EncodeMachineInt(Key)}");
+        builder.Append($"v{Encodings.EncodeMachineInt(Key)}");
     }
 
     public override Value Eval(Dictionary<long, Value> environment)

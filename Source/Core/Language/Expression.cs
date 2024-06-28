@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using Lib;
+using System.Text;
 
 namespace Core;
 
@@ -62,4 +63,37 @@ public abstract class Expression
         if (token.Length != length)
             throw new EvaluationException($"Invalid token {token}");
     }
+
+    public static Unary operator -(Expression e)
+        => new('-', e);
+
+    public static Unary operator !(Expression e)
+        => new('!', e);
+
+    public static Binary operator +(Expression e1, Expression e2)
+        => new('+', e1, e2);
+
+    public static Binary operator -(Expression e1, Expression e2)
+        => new('-', e1, e2);
+
+    public static Binary operator *(Expression e1, Expression e2)
+        => new('*', e1, e2);
+
+    public static Binary operator /(Expression e1, Expression e2)
+        => new('/', e1, e2);
+
+    public static Binary operator %(Expression e1, Expression e2)
+        => new('%', e1, e2);
+
+    public static Binary operator <(Expression e1, Expression e2)
+        => new('<', e1, e2);
+
+    public static Binary operator >(Expression e1, Expression e2)
+        => new('>', e1, e2);
+
+    public static Binary operator |(Expression e1, Expression e2)
+        => new('|', e1, e2);
+
+    public static Binary operator &(Expression e1, Expression e2)
+        => new('&', e1, e2);
 }
