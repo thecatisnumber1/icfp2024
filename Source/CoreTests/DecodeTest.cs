@@ -1,4 +1,4 @@
-using System.Text;
+using Core;
 
 namespace CoreTests;
 
@@ -21,7 +21,10 @@ public class DecodeTest
     [DataRow("T", true)]
     public void TestBool(string encoded, bool expected)
     {
-        bool decoded = false; throw new NotImplementedException();
+        var expr = Expression.Parse(encoded);
+
+        Assert.IsInstanceOfType(expr, typeof(Bool));
+        bool decoded = ((Bool)expr).AsBool();
         Assert.AreEqual(expected, decoded);
     }
 
