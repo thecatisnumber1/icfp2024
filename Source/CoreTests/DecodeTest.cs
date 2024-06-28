@@ -112,17 +112,17 @@ public class DecodeTest
         Assert.AreEqual(Bool.False, Parse<Binary>("B= I$ I#").Eval([]));
         Assert.AreEqual(Bool.True, Parse<Binary>("B| T F").Eval([]));
         Assert.AreEqual(Bool.False, Parse<Binary>("B& T F").Eval([]));
-        Assert.AreEqual(new Str("test"), Parse<Binary>("B. S4% S34").Eval([]));
-        Assert.AreEqual(new Str("tes"), Parse<Binary>("BT I$ S4%34").Eval([]));
-        Assert.AreEqual(new Str("t"), Parse<Binary>("BD I$ S4%34").Eval([]));
+        Assert.AreEqual(Str.Make("test"), Parse<Binary>("B. S4% S34").Eval([]));
+        Assert.AreEqual(Str.Make("tes"), Parse<Binary>("BT I$ S4%34").Eval([]));
+        Assert.AreEqual(Str.Make("t"), Parse<Binary>("BD I$ S4%34").Eval([]));
         Assert.AreEqual(Bool.True, Parse<Binary>("B| T F").Eval([]));
     }
 
     [TestMethod]
     public void TestEvalIf()
     {
-        Assert.AreEqual(new Str("no"), Parse<Unary>("? B> I# I$ S9%3 S./").Eval([]));
-        Assert.AreEqual(new Str("yes"), Parse<Unary>("? B> I$ I# S9%3 S./").Eval([]));
+        Assert.AreEqual(Str.Make("no"), Parse<Unary>("? B> I# I$ S9%3 S./").Eval([]));
+        Assert.AreEqual(Str.Make("yes"), Parse<Unary>("? B> I$ I# S9%3 S./").Eval([]));
     }
 
     [TestMethod]
