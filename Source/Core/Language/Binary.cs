@@ -13,7 +13,7 @@ public class Binary : Expression
         Operator = op;
     }
 
-    public Value Eval(Dictionary<int, Value> environment)
+    public Value Eval(Dictionary<long, Value> environment)
     {
         Value left = Left.Eval(environment);
         Value right = Right.Eval(environment);
@@ -33,7 +33,7 @@ public class Binary : Expression
             '.' => new Str(left.AsMachineString() + right.AsMachineString()),
             'T' => new Str(right.AsMachineString()[..(int)left.AsInt()]),
             'D' => new Str(right.AsMachineString()[(int)left.AsInt()..]),
-            '$' => throw new EvaluationException("Implement binary operator $"),
+            '$' => left.AsClosure().Apply(right),
             _ => throw new EvaluationException($"Invalid binary operator {Operator}"),
         };
     }

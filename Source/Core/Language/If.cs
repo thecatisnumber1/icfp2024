@@ -13,7 +13,7 @@ public class If : Expression
         Else = @else;
     }
 
-    public Value Eval(Dictionary<int, Value> environment)
+    public Value Eval(Dictionary<long, Value> environment)
     {
         var condition = Condition.Eval(environment);
 

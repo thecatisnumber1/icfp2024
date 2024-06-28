@@ -2,7 +2,7 @@
 
 public abstract class Value : Expression
 {
-    public Value Eval(Dictionary<int, Value> environment) => this;
+    public virtual Value Eval(Dictionary<long, Value> environment) => this;
 
     public virtual bool AsBool()
     {
@@ -27,6 +27,11 @@ public abstract class Value : Expression
     public virtual string AsMachineString()
     {
         throw new EvaluationException("Not a String");
+    }
+
+    public virtual Closure AsClosure()
+    {
+        throw new EvaluationException("Not a Closure");
     }
 
     public abstract bool EqualsValue(Value other);

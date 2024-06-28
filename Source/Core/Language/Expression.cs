@@ -2,7 +2,7 @@
 
 public interface Expression
 {
-    public Value Eval(Dictionary<int, Value> environment);
+    public Value Eval(Dictionary<long, Value> environment);
 
     public static Expression Parse(string icfp)
     {

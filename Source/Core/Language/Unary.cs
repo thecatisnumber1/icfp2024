@@ -11,7 +11,7 @@ public class Unary : Expression
         Operand = operand;
     }
 
-    public Value Eval(Dictionary<int, Value> environment)
+    public Value Eval(Dictionary<long, Value> environment)
     {
         var operand = Operand.Eval(environment);
 
