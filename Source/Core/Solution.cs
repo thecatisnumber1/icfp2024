@@ -11,10 +11,11 @@ namespace Core
 
     internal class Solution
     {
-        public string? problemType { get; set; }
-        public string? problemName { get; set; }
-        public int expectedScore { get; set; }
+        public string? problem_type { get; set; }
+        public string? problem_name { get; set; }
+        public int expected_score { get; set; }
         public string? solution { get; set; }
+        public string meta {get; set;}
     }
 
     //   return {'status': 'OK', 'score': received_score, 'parsed': result_decode}
@@ -28,31 +29,40 @@ namespace Core
 
     }
 
-    internal class SolutionSubmitter
+    public class SolutionSubmitter
     {
         private static HttpClient client = new();
-        public static SolveResult submitSoluton(string problemType, string problemName, int expectedScore, string solution)
+        public static SolveResult submitSoluton(string problemType, string problemName, int expectedScore, string solution, Dictionary<string, string> meta)
         {
             SolveResult srez = null;
+            var solutionJson = JsonSerializer.Serialize(new Solution {
+                problem_type = problemType,
+                problem_name = problemName,
+                expected_score = expectedScore,
+                solution = solution,
+                meta = JsonSerializer.Serialize(meta)
+            });
+
             for (var i = 0; i < 3; i++)
             {
-                var task = client.PostAsJsonAsync<Solution>("https://patcdr.net/carl/icfp2024/solve", new Solution
-                {
-                    problemType = problemType,
-                    problemName = problemName,
-                    expectedScore = expectedScore,
-                    solution = solution
-                });
+                var task = client.PostAsync("https://patcdr.net/carl/icfp2024/solve", new StringContent(solutionJson, Encoding.UTF8, "application/json"));
 
-                task.RunSynchronously();
+                task.Wait();
 
                 var result = task.Result;
+                var rezTask = result.Content.ReadAsStringAsync();
+                rezTask.Wait();
+                var content = rezTask.Result;
 
-                srez = JsonSerializer.Deserialize<SolveResult>(result.Content.ToString());
+                srez = JsonSerializer.Deserialize<SolveResult>(content);
                 if (srez.status == "BUSY SERVER")
                 {
                     Console.WriteLine("SERVER BUSY");
                     Thread.Sleep(20);
+                }
+                else
+                {
+                    break;
                 }
 
             }
