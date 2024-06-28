@@ -18,39 +18,24 @@ public class Binary : Expression
         Value left = Left.Eval(environment);
         Value right = Right.Eval(environment);
 
-        switch (Operator)
+        return Operator switch
         {
-            case '+':
-                return new Integer(left.AsInt() + right.AsInt());
-            case '-':
-                return new Integer(left.AsInt() - right.AsInt());
-            case '*':
-                return new Integer(left.AsInt() * right.AsInt());
-            case '/':
-                return new Integer(left.AsInt() / right.AsInt());
-            case '%':
-                return new Integer(left.AsInt() % right.AsInt());
-            case '<':
-                return Bool.Make(left.AsInt() < right.AsInt());
-            case '>':
-                return Bool.Make(left.AsInt() > right.AsInt());
-            case '=':
-                return Bool.Make(left.EqualsValue(right));
-            case '|':
-                return Bool.Make(left.AsBool() || right.AsBool());
-            case '&':
-                return Bool.Make(left.AsBool() && right.AsBool());
-            case '.':
-                return new Str(left.AsMachineString() + right.AsMachineString());
-            case 'T':
-                return new Str(right.AsMachineString().Substring(0, (int)left.AsInt()));
-            case 'D':
-                return new Str(right.AsMachineString().Substring((int)left.AsInt()));
-            case '$':
-                throw new EvaluationException("Implement binary operator $");
-            default:
-                throw new EvaluationException($"Invalid binary operator {Operator}");
-        }
+            '+' => new Integer(left.AsInt() + right.AsInt()),
+            '-' => new Integer(left.AsInt() - right.AsInt()),
+            '*' => new Integer(left.AsInt() * right.AsInt()),
+            '/' => new Integer(left.AsInt() / right.AsInt()),
+            '%' => new Integer(left.AsInt() % right.AsInt()),
+            '<' => Bool.Make(left.AsInt() < right.AsInt()),
+            '>' => Bool.Make(left.AsInt() > right.AsInt()),
+            '=' => Bool.Make(left.EqualsValue(right)),
+            '|' => Bool.Make(left.AsBool() || right.AsBool()),
+            '&' => Bool.Make(left.AsBool() && right.AsBool()),
+            '.' => new Str(left.AsMachineString() + right.AsMachineString()),
+            'T' => new Str(right.AsMachineString()[..(int)left.AsInt()]),
+            'D' => new Str(right.AsMachineString()[(int)left.AsInt()..]),
+            '$' => throw new EvaluationException("Implement binary operator $"),
+            _ => throw new EvaluationException($"Invalid binary operator {Operator}"),
+        };
     }
 
     public override string ToString()

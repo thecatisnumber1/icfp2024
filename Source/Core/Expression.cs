@@ -26,9 +26,9 @@ public interface Expression
                 ValidateTokenLength(token, 1);
                 return Bool.False;
             case 'I':
-                return new Integer(token.Substring(1));
+                return new Integer(token[1..]);
             case 'S':
-                return new Str(token.Substring(1));
+                return new Str(token[1..]);
             case 'U':
                 ValidateTokenLength(token, 2);
                 return new Unary(token[1], ParseHelper(tokens));

@@ -2,8 +2,8 @@
 
 public class Bool : Value
 {
-    public static Bool True = new Bool(true);
-    public static Bool False = new Bool(false);
+    public static readonly Bool True = new(true);
+    public static readonly Bool False = new(false);
     public static Bool Make(bool value)
     {
         return value ? True : False;

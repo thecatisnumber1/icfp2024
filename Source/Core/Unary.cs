@@ -15,19 +15,14 @@ public class Unary : Expression
     {
         var operand = Operand.Eval(environment);
 
-        switch (Operator)
+        return Operator switch
         {
-            case '-':
-                return new Integer(-operand.AsInt());
-            case '!':
-                return Bool.Make(!operand.AsBool());
-            case '#':
-                return new Integer(operand.AsMachineString());
-            case '$':
-                return new Str(operand.AsMachineInt());
-            default:
-                throw new EvaluationException($"Invalid unary operator {Operator}");
-        }
+            '-' => new Integer(-operand.AsInt()),
+            '!' => Bool.Make(!operand.AsBool()),
+            '#' => new Integer(operand.AsMachineString()),
+            '$' => new Str(operand.AsMachineInt()),
+            _ => throw new EvaluationException($"Invalid unary operator {Operator}"),
+        };
     }
 
     public override string ToString()
