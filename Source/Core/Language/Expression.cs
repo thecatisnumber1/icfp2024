@@ -18,44 +18,58 @@ public abstract class Expression
 
     public static Expression Parse(string icfp)
     {
-        var tokens = new Queue<string>(icfp.Split(' '));
-        
-        return ParseHelper(tokens);
-    }
+        var tokens = icfp.Split(' ').Reverse();
+        Stack<Expression> stack = new();
 
-    private static Expression ParseHelper(Queue<string> tokens)
-    {
-        var token = tokens.Dequeue();
-
-        char type = token[0];
-
-        switch (type)
+        foreach (var token in tokens)
         {
-            case 'T':
-                ValidateTokenLength(token, 1);
-                return Bool.True;
-            case 'F':
-                ValidateTokenLength(token, 1);
-                return Bool.False;
-            case 'I':
-                return new Integer(token[1..]);
-            case 'S':
-                return new Str(token[1..]);
-            case 'U':
-                ValidateTokenLength(token, 2);
-                return new Unary(token[1], ParseHelper(tokens));
-            case 'B':
-                ValidateTokenLength(token, 2);
-                return new Binary(token[1], ParseHelper(tokens), ParseHelper(tokens));
-            case '?':
-                return new If(ParseHelper(tokens), ParseHelper(tokens), ParseHelper(tokens));
-            case 'v':
-                return new Variable(token[1..]);
-            case 'L':
-                return new Lambda(token[1..], ParseHelper(tokens));
-            default:
-                throw new EvaluationException($"Invalid token {token}");
+            char type = token[0];
+
+            switch (type)
+            {
+                case 'T':
+                    ValidateTokenLength(token, 1);
+                    stack.Push(Bool.True);
+                    break;
+                case 'F':
+                    ValidateTokenLength(token, 1);
+                    stack.Push(Bool.False);
+                    break;
+                case 'I':
+                    stack.Push(new Integer(token[1..]));
+                    break;
+                case 'S':
+                    stack.Push(new Str(token[1..]));
+                    break;
+                case 'U':
+                    ValidateTokenLength(token, 2);
+                    stack.Push(new Unary(token[1], stack.Pop()));
+                    break;
+                case 'B':
+                    ValidateTokenLength(token, 2);
+                    stack.Push(new Binary(token[1], stack.Pop(), stack.Pop()));
+                    break;
+                case '?':
+                    ValidateTokenLength(token, 1);
+                    stack.Push(new If(stack.Pop(), stack.Pop(), stack.Pop()));
+                    break;
+                case 'v':
+                    stack.Push(new Variable(token[1..]));
+                    break;
+                case 'L':
+                    stack.Push(new Lambda(token[1..], stack.Pop()));
+                    break;
+                default:
+                    throw new EvaluationException($"Invalid token {token}");
+            }
         }
+
+        if (stack.Count != 1)
+        {
+            throw new EvaluationException("Invalid ICFP: Multiple Expressions");
+        }
+
+        return stack.Pop();
     }
 
     private static void ValidateTokenLength(string token, int length)

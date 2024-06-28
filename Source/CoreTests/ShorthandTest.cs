@@ -16,12 +16,6 @@ public class ShorthandTest
 
         Expression actual = Apply(Apply(Lambda(x, Lambda(y, x)), Concat(S("Hello"), S(" World!"))), I(42));
 
-        var result = actual.ToICFP();
-        for (int i = 0; i < expected.Length; i++)
-                    {
-            Assert.AreEqual(expected[i], result[i]);
-        }
-
         Assert.AreEqual(expected, actual.ToICFP());
     }
 }
