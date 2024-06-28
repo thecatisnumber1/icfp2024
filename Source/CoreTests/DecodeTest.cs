@@ -67,10 +67,10 @@ public class DecodeTest
     }
 
     [TestMethod]
-    [DataRow("I\"!", 94)]
-    [DataRow("I!\"", 1)] // Leading zero
-    [DataRow("I/6", 1337)]
-    [DataRow("I<PP}d", int.MaxValue)]
+    [DataRow("I\"!", 94L)]
+    [DataRow("I!\"", 1L)] // Leading zero
+    [DataRow("I/6", 1337L)]
+    [DataRow("I<PP}d", (long)int.MaxValue)]
     [DataRow("I1**0#VEx9D", long.MaxValue)]
     public void TestInt(string icfp, long expected)
     {
@@ -121,15 +121,13 @@ public class DecodeTest
     [TestMethod]
     public void TestEvalIf()
     {
-        throw new NotImplementedException();
-        //Assert.AreEqual("no", "? B> I# I$ S9%3 S./")
-        //Assert.AreEqual("yes", "? B> I$ I# S9%3 S./")
+        Assert.AreEqual(new Str("no"), Parse<Unary>("? B> I# I$ S9%3 S./").Eval([]));
+        Assert.AreEqual(new Str("yes"), Parse<Unary>("? B> I$ I# S9%3 S./").Eval([]));
     }
 
     [TestMethod]
     public void TestEvalLambda()
     {
-        throw new NotImplementedException();
-        //Assert.AreEqual("Hello World!", "B$ B$ L# L$ v# B. SB%,,/ S}Q/2,$_ IK")
+        Assert.AreEqual(new Str("Hello World!"), Parse<Unary>("B$ B$ L# L$ v# B. SB%,,/ S}Q/2,$_ IK").Eval([]));
     }
 }
