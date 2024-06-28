@@ -35,6 +35,10 @@ public interface Expression
             case 'B':
                 ValidateTokenLength(token, 2);
                 return new Binary(token[1], ParseHelper(tokens), ParseHelper(tokens));
+            case '?':
+                return new If(ParseHelper(tokens), ParseHelper(tokens), ParseHelper(tokens));
+            case 'v':
+                return new Variable(token[1..]);
             default:
                 throw new EvaluationException($"Invalid token {token}");
         }
