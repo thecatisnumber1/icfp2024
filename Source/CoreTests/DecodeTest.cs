@@ -16,15 +16,19 @@ public class DecodeTest
         Assert.AreEqual(BASE, ALL_DECODED_CHARS.Length);
     }
 
+    private static T Parse<T>(string icfp)
+    {
+        var expr = Expression.Parse(icfp);
+        Assert.IsInstanceOfType(expr, typeof(T));
+        return (T)expr;
+    }
+
     [TestMethod]
     [DataRow("F", false)]
     [DataRow("T", true)]
-    public void TestBool(string encoded, bool expected)
+    public void TestBool(string icfp, bool expected)
     {
-        var expr = Expression.Parse(encoded);
-
-        Assert.IsInstanceOfType(expr, typeof(Bool));
-        bool decoded = ((Bool)expr).AsBool();
+        bool decoded = Parse<Bool>(icfp).AsBool();
         Assert.AreEqual(expected, decoded);
     }
 
@@ -34,8 +38,7 @@ public class DecodeTest
         // Test each individual digit. e.g. "I!" = 0, "I~" = 93
         for (int i = 0; i < ALL_ENCODED_CHARS.Length; i++)
         {
-            string encoded = "I" + ALL_ENCODED_CHARS[i];
-            int decoded = -1;
+            long decoded = Parse<Integer>("I" + ALL_ENCODED_CHARS[i]).AsInt();
             Assert.AreEqual(i, decoded);
         }
     }
@@ -44,20 +47,21 @@ public class DecodeTest
     public void TestIntShifts()
     {
         // Test each individual digit and shift it by appending zeros
-        for (int i = 0; i < ALL_ENCODED_CHARS.Length; i++)
+        // Don't start at 0 or infinite loop lulz
+        for (int i = 1; i < ALL_ENCODED_CHARS.Length; i++)
         {
-            string encoded = "" + ALL_ENCODED_CHARS[i];
+            string icfp = "I" + ALL_ENCODED_CHARS[i];
             long expected = i;
 
-            while (expected <= int.MaxValue)
+            while (expected >= 0 && expected <= long.MaxValue)
             {
-                int decoded = -1; // "I" + encoded
-                Assert.AreEqual((int)expected, decoded);
+                long decoded = Parse<Integer>(icfp).AsInt();
+                Assert.AreEqual(expected, decoded);
 
                 // Do a base-94 left shift
                 expected *= BASE;
                 // Append a 0, which is a base-94 shift
-                encoded += "!";
+                icfp += "!";
             }
         }
     }
@@ -66,11 +70,11 @@ public class DecodeTest
     [DataRow("I\"!", 94)]
     [DataRow("I!\"", 1)] // Leading zero
     [DataRow("I/6", 1337)]
-    [DataRow("I/6", 1337)]
     [DataRow("I<PP}d", int.MaxValue)]
-    public void TestInt(string encoded, bool expected)
+    [DataRow("I1**0#VExW1", long.MaxValue)]
+    public void TestInt(string icfp, long expected)
     {
-        bool decoded = false; throw new NotImplementedException();
+        long decoded = Parse<Integer>(icfp).AsInt();
         Assert.AreEqual(expected, decoded);
     }
 
@@ -80,20 +84,19 @@ public class DecodeTest
     [DataRow("S'%4}).$%8", "get index")]
     [DataRow("SB%,,/}Q/2,$_", "Hello World!")]
     [DataRow("S" + ALL_ENCODED_CHARS, ALL_DECODED_CHARS)]
-    public void TestString(string encoded, string expected)
+    public void TestString(string icfp, string expected)
     {
-        string decoded = ""; throw new NotImplementedException();
+        string decoded = Parse<Str>(icfp).AsString();
         Assert.AreEqual(expected, decoded);
     }
 
     [TestMethod]
     public void TestEvalUnaryOp()
     {
-        throw new NotImplementedException();
-        //Assert.AreEqual(-3, "U- I$");
-        //Assert.AreEqual(false, "U! T");
-        //Assert.AreEqual(15818151, "U# S4%34");
-        //Assert.AreEqual("test", "U$ I4%34");
+        Assert.AreEqual(new Integer(-3), Parse<Unary>("U- I$").Eval([]));
+        Assert.AreEqual(Bool.False, Parse<Unary>("U! T").Eval([]));
+        Assert.AreEqual(new Integer(15818151), Parse<Unary>("U# S4%34").Eval([]));
+        Assert.AreEqual(new Str("test"), Parse<Unary>("U$ I4%34").Eval([]));
     }
 
     [TestMethod]
