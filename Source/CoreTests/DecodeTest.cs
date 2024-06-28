@@ -121,13 +121,13 @@ public class DecodeTest
     [TestMethod]
     public void TestEvalIf()
     {
-        Assert.AreEqual(Str.Make("no"), Parse<Unary>("? B> I# I$ S9%3 S./").Eval([]));
-        Assert.AreEqual(Str.Make("yes"), Parse<Unary>("? B> I$ I# S9%3 S./").Eval([]));
+        Assert.AreEqual(Str.Make("no"), Parse<If>("? B> I# I$ S9%3 S./").Eval([]));
+        Assert.AreEqual(Str.Make("yes"), Parse<If>("? B> I$ I# S9%3 S./").Eval([]));
     }
 
     [TestMethod]
     public void TestEvalLambda()
     {
-        Assert.AreEqual(new Str("Hello World!"), Parse<Unary>("B$ B$ L# L$ v# B. SB%,,/ S}Q/2,$_ IK").Eval([]));
+        Assert.AreEqual(Str.Make("Hello World!"), Parse<Unary>("B$ B$ L# L$ v# B. SB%,,/ S}Q/2,$_ IK").Eval([]));
     }
 }
