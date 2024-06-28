@@ -102,21 +102,20 @@ public class DecodeTest
     [TestMethod]
     public void TestEvalBinaryOp()
     {
-        throw new NotImplementedException();
-        //Assert.AreEqual(5, "B+ I# I$");
-        //Assert.AreEqual(1, "B- I$ I#");
-        //Assert.AreEqual(6, "B* I$ I#");
-        //Assert.AreEqual(-3, "B/ U- I( I#");
-        //Assert.AreEqual(-1, "B% U- I( I#");
-        //Assert.AreEqual(false, "B< I$ I#");
-        //Assert.AreEqual(true, "B> I$ I#");
-        //Assert.AreEqual(false, "B= I$ I#");
-        //Assert.AreEqual(true, "B| T F");
-        //Assert.AreEqual(false, "B& T F");
-        //Assert.AreEqual("test", "B. S4% S34");
-        //Assert.AreEqual("tes", "BT I$ S4%34");
-        //Assert.AreEqual("t", "BD I$ S4%34");
-        //Assert.AreEqual(true, "B| T F");
+        Assert.AreEqual(new Integer(5), Parse<Binary>("B+ I# I$").Eval([]));
+        Assert.AreEqual(new Integer(1), Parse<Binary>("B- I$ I#").Eval([]));
+        Assert.AreEqual(new Integer(6), Parse<Binary>("B* I$ I#").Eval([]));
+        Assert.AreEqual(new Integer(-3), Parse<Binary>("B/ U- I( I#").Eval([]));
+        Assert.AreEqual(new Integer(-1), Parse<Binary>("B% U- I( I#").Eval([]));
+        Assert.AreEqual(Bool.False, Parse<Binary>("B< I$ I#").Eval([]));
+        Assert.AreEqual(Bool.True, Parse<Binary>("B> I$ I#").Eval([]));
+        Assert.AreEqual(Bool.False, Parse<Binary>("B= I$ I#").Eval([]));
+        Assert.AreEqual(Bool.True, Parse<Binary>("B| T F").Eval([]));
+        Assert.AreEqual(Bool.False, Parse<Binary>("B& T F").Eval([]));
+        Assert.AreEqual(new Str("test"), Parse<Binary>("B. S4% S34").Eval([]));
+        Assert.AreEqual(new Str("tes"), Parse<Binary>("BT I$ S4%34").Eval([]));
+        Assert.AreEqual(new Str("t"), Parse<Binary>("BD I$ S4%34").Eval([]));
+        Assert.AreEqual(Bool.True, Parse<Binary>("B| T F").Eval([]));
     }
 
     [TestMethod]
