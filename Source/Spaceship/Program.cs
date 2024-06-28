@@ -1,4 +1,5 @@
 ﻿using Lib;
+using Core;
 using System.Runtime.Serialization.Formatters;
 using System.Text.Json;
 
@@ -13,10 +14,17 @@ namespace Spaceship
             for (int i = 0; i < allProblems.Count; i++)
             {
                 var problem = allProblems[i];
-                SpaceshipSolver solver = new SpaceshipSolver(TimeSpan.FromSeconds(5));
+                NearestNeighborSolver solver = new NearestNeighborSolver();
                 List<int> solution = solver.Solve(problem);
-                PathSimulator.SimulateAndPrintPath(solution);
-                WriteSolutionToFile(problem, solution, $"solution_{i}.json");
+                WriteSolutionToFile(problem, solution, $"{problem.Name}.json");
+
+                if (solution.Count > 1000000)
+                {
+                    continue;
+                }
+
+                string submissionString = $"solve {problem.Name} " + string.Join("", solution); //string.Join(" ", solution.Select(x => Encodings.EncodeMachineInt(x)));
+                var result = SolutionSubmitter.submitSoluton("spaceship", problem.Name, solution.Count, "S" + Encodings.EncodeMachineString(submissionString), new Dictionary<string, string>());
             }
         }
 

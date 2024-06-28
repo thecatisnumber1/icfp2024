@@ -11,7 +11,7 @@ public class SpaceshipSolver
     private readonly double initialTemperature;
     private readonly double finalTemperature;
 
-    public SpaceshipSolver(TimeSpan timeLimit, double initialTemperature = 10000.0, double finalTemperature = .01)
+    public SpaceshipSolver(TimeSpan timeLimit, double initialTemperature = 100000.0, double finalTemperature = .01)
     {
         this.timeLimit = timeLimit;
         this.initialTemperature = initialTemperature;

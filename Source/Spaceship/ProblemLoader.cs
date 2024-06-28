@@ -32,7 +32,7 @@ namespace Spaceship
                     }
                 }
 
-                problems.Add(new SpaceshipProblem(name, targetPoints));
+                problems.Add(new SpaceshipProblem(name.Replace("-decoded", null), targetPoints));
             }
 
             return problems;
