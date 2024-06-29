@@ -27,7 +27,7 @@ if (args.Length == 0)
         }
 
         int spaceIdx = line.IndexOf(' ');
-        string cmdargs;
+        string cmdargs = "";
 
         if (spaceIdx > 0)
         {
@@ -52,7 +52,7 @@ if (args.Length == 0)
                 cmdargs = File.ReadAllText(file.FullName);
             }
         }
-        else
+        else if (cmd != "help" && cmd != "download")
         {
             Console.WriteLine("Enter command input, end with \"EOF\" on its own line");
             Console.WriteLine("-----");
@@ -110,7 +110,7 @@ if (args.Length == 0)
         {
             Console.WriteLine(Expression.Parse(cmdargs).Eval().ToString());
         }
-        else if (cmd == "download")
+        else if (cmd == "download" && cmdargs != "")
         {
             TaskDownloader.Download(cmdargs);
         }
@@ -158,16 +158,22 @@ if (args.Length == 0)
         }
         else
         {
+            if (cmd != "help")
+            {
+                Console.WriteLine("Unknown command. Try:");
+            }
+
             Console.WriteLine("""
-            Unknown command. Try:
                 send <expr>          Send a message to the server
                 send-raw <icfp>      Send a raw ICFP message to the server
                 encode <expr>        Encode a string to ICFP
-                decode <icfp>        Decode an ICFP string
+                eval <icfp>          Evals an ICFP string
                 download <taskname>  Downloads a task and its problems
                 strings <icfp>       Outputs all strings in the ICFP
                 vis <icfp>           Outputs the expression's parse tree in a more readable view
                 parse <icfp>         Outputs the expression's parse tree
+                unparse              Returns parsed output to single-line
+                compile <micfp>      Compiles MICFP to ICFP
                 exit                 Exit
 
                 Any command run without an argument will enter input mode, which is
