@@ -1,4 +1,6 @@
-﻿namespace ThreeDimensional
+﻿using Core;
+
+namespace ThreeDimensional
 {
     internal class Program
     {
@@ -38,14 +40,20 @@ A - . # v . . A + . # v . . . .
 . . . S . 3 . . . . S . 3 . . .", 4);
             */
 
-            ProgramGrid pg = ProgramGrid.Parse(
-@". 1 . 0 . . 1 . 0 . . .
-A - . = . A + . = . . .
-. . . . v . . . . v . .
-0 # . . . 0 # . . . . .
-. . v -1 @ -2 . v -1 @ -2 .
-. . . . 3 . . . . 3 . .
-. . v . . . . v . . . .", 4);
+            string s = @". 1 . 0 . . 1 . 0 . . A .
+A - . = . A + . = . 0 = .
+. . . . v . . . . v . S .
+0 # . . . 0 # . . . . . .
+. . v 0 @ -2 . v 0 @ -2 . .
+. . . . 3 . . . . 3 . . .
+. . v . . . . v . . . A .
+. . . 0 = . . . 0 = . - .
+. 2 @ 7 . . 2 @ 7 . . S .
+. . 4 A + S . 4 . . - . .
+. . . . . . . . . . . . .";
+
+            s = s.Replace("\r", "");
+            ProgramGrid pg = ProgramGrid.Parse(s, -4);
 
             ProgramRunner runner = new ProgramRunner(pg);
             Console.WriteLine(runner);
@@ -55,6 +63,8 @@ A - . = . A + . = . . .
             }
 
             Console.WriteLine(runner.GetResult());
+            //string submissionString = $"solve 3d2\n" + s;
+            //var result = SolutionSubmitter.submitSoluton("spaceship", "3d2", -1, "S" + Encodings.EncodeMachineString(submissionString), new Dictionary<string, string>());
         }
     }
 }
