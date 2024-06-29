@@ -51,6 +51,7 @@ A - . = . A + . = . 0 = .
 . 2 @ 7 . . 2 @ 7 . . S .
 . . 4 A + S . 4 . . - . .
 . . . . . . . . . . . . .";
+            string problemName = "3d2";
 
             s = s.Replace("\r", "");
             ProgramGrid pg = ProgramGrid.Parse(s, -4);
@@ -63,8 +64,8 @@ A - . = . A + . = . 0 = .
             }
 
             Console.WriteLine(runner.GetResult());
-            //string submissionString = $"solve 3d2\n" + s;
-            //var result = SolutionSubmitter.submitSoluton("spaceship", "3d2", -1, "S" + Encodings.EncodeMachineString(submissionString), new Dictionary<string, string>());
+            string submissionString = $"solve {problemName}\n" + s;
+            var result = SolutionSubmitter.submitSoluton("spaceship", problemName, -1, "S" + Encodings.EncodeMachineString(submissionString), new Dictionary<string, string>());
         }
     }
 }
