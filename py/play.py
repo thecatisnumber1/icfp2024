@@ -5,6 +5,7 @@ import requests
 # Define the custom order for the encoding
 custom_order = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`|~ \n"
 int_chars = ''.join((chr(i) for i in range(ord('!'), ord('!') + 94)))
+print(int_chars)
 
 # Create a dictionary to map the custom order to standard ASCII values
 encoding_map = {char: chr(i + 33) for i, char in enumerate(custom_order)}
@@ -33,11 +34,11 @@ def encode_string(decoded_str):
 def communicate_with_server(encoded_text):
     # Send the POST request
     response = requests.post(
-        "https://boundvariable.space/communicate", 
+        "https://boundvariable.space/communicate",
         data=encoded_text,
         headers={'Authorization': 'Bearer ff993058-d102-4ee8-913f-e1c39614b957'}
     )
-    
+
     # Check for successful response
     if response.status_code == 200:
         # Decode the response
@@ -110,7 +111,7 @@ class Token:
 
     def apply(self, var, param):
         return self
-    
+
     def copy(self):
         Token.postfix += 1
         return Token.Parse(str(self))
@@ -123,11 +124,33 @@ class BooleanOperator(Token):
         return self.indicator == 'T'
 
 class IntOperator(Token):
-    def __init__(self, token, context=[]):
+    def __init__(self, token, context=[], negative=False):
         super().__init__(token, context)
+        self.negative = negative
 
     def evaluate(self):
-        return base94_to_int(self.body)
+        return (-1 if self.negative else 1) * base94_to_int(self.body)
+
+    def __add__(self, other):
+        val = self.evaluate() + other.evaluate()
+        return IntOperator('I' + int_to_base94(abs(val)), negative=(val < 0))
+
+    def __sub__(self, other):
+        val = self.evaluate() - other.evaluate()
+        return IntOperator('I' + int_to_base94(abs(val)), negative=(val < 0))
+
+    def __mul__(self, other):
+        val = self.evaluate() * other.evaluate()
+        return IntOperator('I' + int_to_base94(abs(val)), negative=(val < 0))
+
+    def __mod__(self, other):
+        val = self.evaluate() % other.evaluate()
+        return IntOperator('I' + int_to_base94(abs(val)), negative=(self.negative or other.negative))
+
+    def __truediv__(self, other):
+        val = int(self.evaluate() / other.evaluate())
+        return IntOperator('I' + int_to_base94(abs(val)), negative=(val < 0))
+
 
 class StringOperator(Token):
     def __init__(self, token, context=[]):
@@ -151,7 +174,8 @@ class UnaryOperator(Token):
             return self
 
         if self.body == '-':
-            return IntOperator('I' + int_to_base94(-self.operand.evaluate()))
+            self.operand.negative = not self.operand.negative
+            return self.operand
         elif self.body == '!':
             return BooleanOperator('T' if not self.operand.evaluate() else 'F')
         elif self.body == '#':
@@ -160,7 +184,7 @@ class UnaryOperator(Token):
             return StringOperator('S' + self.operand.body)
         else:
             raise ValueError(f"Unknown unary operator: {self.operator}")
-    
+
     def apply(self, var, param):
         self.operand = self.operand.apply(var, param)
         return self
@@ -192,20 +216,23 @@ class BinaryOperator(Token):
             self.operand2 = self.operand2.evaluate()
             return self
 
+        # Int ops
+        if self.body == '+':
+            return self.operand1 + self.operand2
+        elif self.body == '-':
+            return self.operand1 - self.operand2
+        elif self.body == '*':
+            return self.operand1 * self.operand2
+        elif self.body == '/':
+            return self.operand1 / self.operand2
+        elif self.body == '%':
+            return self.operand1 % self.operand2
+
+        # Bool ops
         operand1 = self.operand1.evaluate()
         operand2 = self.operand2.evaluate()
 
-        if self.body == '+':
-            return IntOperator('I' + int_to_base94(operand1 + operand2))
-        elif self.body == '-':
-            return IntOperator('I' + int_to_base94(operand1 - operand2))
-        elif self.body == '*':
-            return IntOperator('I' + int_to_base94(operand1 * operand2))
-        elif self.body == '/':
-            return IntOperator('I' + int_to_base94(operand1 // operand2))
-        elif self.body == '%':
-            return IntOperator('I' + int_to_base94(operand1 % operand2))
-        elif self.body == '<':
+        if self.body == '<':
             return BooleanOperator('T' if (operand1 < operand2) else 'F')
         elif self.body == '>':
             return BooleanOperator('T' if (operand1 > operand2) else 'F')
@@ -215,14 +242,15 @@ class BinaryOperator(Token):
             return BooleanOperator('T' if (operand1 or operand2) else 'F')
         elif self.body == '&':
             return BooleanOperator('T' if (operand1 and operand2) else 'F')
-        elif self.body == '.':
+
+        if self.body == '.':
             return StringOperator('S' + encode_string(operand1 + operand2))
         elif self.body == 'T':
             return StringOperator('S' + encode_string(operand2[:operand1]))
         elif self.body == 'D':
             return StringOperator('S' + encode_string(operand2[operand1:]))
-        else:
-            raise ValueError(f"Unknown binary operator: {self.body}")
+
+        raise ValueError(f"Unknown binary operator: {self.body}")
 
     def apply(self, var, param):
         self.operand1 = self.operand1.apply(var, param)
@@ -259,7 +287,7 @@ class IfStatement(Token):
 class LambdaAbstraction(Token):
     def __init__(self, token, context=[]):
         super().__init__(token, context)
-        
+
         self.func = Token.Parse(context)
         self.size = 1 + self.func.size
 
@@ -273,7 +301,7 @@ class LambdaAbstraction(Token):
         # Avoid self-capture
         if self.body == var:
             return self
-        
+
         self.func = self.func.apply(var, param)
         return self
 
@@ -283,7 +311,7 @@ class Variable(Token):
 
     def evaluate(self):
         return self
-    
+
     def apply(self, var, param):
         if var == self.body:
             return param.copy()
@@ -294,20 +322,20 @@ class Variable(Token):
 
 text = """
 
-B$ 
-    L" 
-        B$ 
-            L# 
-                B$ 
-                    v" 
-                    B$ 
-                        v# 
-                        v# 
-            L# 
-                B$ 
-                    v" 
-                    B$ 
-                        v# 
+B$
+    L"
+        B$
+            L#
+                B$
+                    v"
+                    B$
+                        v#
+                        v#
+            L#
+                B$
+                    v"
+                    B$
+                        v#
                         v#
     SL
 
@@ -323,39 +351,59 @@ B. SF B$ B$ L" B$ L" B$ L# B$ v" B$ v# v# L# B$ v" B$ v# v# L$ L# ? B= v# I" v" 
 
 # text = """B$ B$ L# L$ v# B. SB%,,/ S}Q/2,$_ IK"""
 
+text = """
+ ? B= B$ B$ B$ B$ L$ L$ L$ L# v$ I" I# I$ I% I$ ? B= B$ L$ v$ I+ I+ ? B= BD I$ S4%34 S4 ? B= BT I$ S4%34 S4%3 ? B= B. S4% S34 S4%34 ? U! B& T F ? B& T T ? U! B| F F ? B| F T ? B< U- I$ U- I# ? B> I$ I# ? B= U- I" B% U- I$ I# ? B= I" B% I( I$ ? B= U- I" B/ U- I$ I# ? B= I# B/ I( I$ ? B= I' B* I# I$ ? B= I$ B+ I" I# ? B= U$ I4%34 S4%34 ? B= U# S4%34 I4%34 ? U! F ? B= U- I$ B- I# I& ? B= I$ B- I& I# ? B= S4%34 S4%34 ? B= F F ? B= I$ I$ ? T B. B. SM%,&k#(%#+}IEj}3%.$}z3/,6%},!.'5!'%y4%34} U$ B+ I# B* I$> I1~s:U@ Sz}4/}#,!)-}0/).43}&/2})4 S)&})3}./4}#/22%#4 S").!29}q})3}./4}#/22%#4 S").!29}q})3}./4}#/22%#4 S").!29}q})3}./4}#/22%#4 S").!29}k})3}./4}#/22%#4 S5.!29}k})3}./4}#/22%#4 S5.!29}_})3}./4}#/22%#4 S5.!29}a})3}./4}#/22%#4 S5.!29}b})3}./4}#/22%#4 S").!29}i})3}./4}#/22%#4 S").!29}h})3}./4}#/22%#4 S").!29}m})3}./4}#/22%#4 S").!29}m})3}./4}#/22%#4 S").!29}c})3}./4}#/22%#4 S").!29}c})3}./4}#/22%#4 S").!29}r})3}./4}#/22%#4 S").!29}p})3}./4}#/22%#4 S").!29}{})3}./4}#/22%#4 S").!29}{})3}./4}#/22%#4 S").!29}d})3}./4}#/22%#4 S").!29}d})3}./4}#/22%#4 S").!29}l})3}./4}#/22%#4 S").!29}N})3}./4}#/22%#4 S").!29}>})3}./4}#/22%#4 S!00,)#!4)/.})3}./4}#/22%#4 S!00,)#!4)/.})3}./4}#/22%#4
+"""
+
+def evaluate_program(program):
+    try:
+        program = Token.Parse(program)
+    except:
+        print("Unable to parse program")
+        return program
+
+    steps = 0
+    while isinstance(program, Token):
+        # print(program.pprint())
+        print(program.pprint(space='', newline=' '))
+        print()
+        program = program.evaluate()
+        steps += 1
+
+    print('Program result: ', program)
+    print("In steps: ", steps)
+    print()
+
+    return program
+
+
 def main():
+    while True:
         text = input("Enter program (or 'exit' to quit): ")
-        
+
         if text.lower() == 'exit':
             return
 
-        program = Token.Parse(text)
-        steps = 0
-        while isinstance(program, Token):
-            # print(program.pprint())
-            print(program.pprint(space='', newline=' '))
-            print()
-            program = program.evaluate()
-            steps += 1
-
-        print('Final answer: ', program)
-        print("In steps: ", steps)
+        program = evaluate_program(text)
 
         # Communicate with the server and get the response
-        # encoded_text = encode_string(text)
-        # response = communicate_with_server(encoded_text)
-        # print(response)
-        # try:
-        #     decoded_response = decode_string(response)
-        # except TypeError:
-        #     tokens = response.split()
-        #     decoded_response = evaluate_program(tokens)
+
+        encoded_text = encode_string(program)
+        print("Sending: ", encoded_text)
+        response = communicate_with_server(encoded_text)
+        print()
+        print("Raw response: ",response)
+        print()
+
+        try:
+            decoded_response = decode_string(response)
+        except TypeError:
+            decoded_response = evaluate_program(response)
 
         # Print the decoded response
-        # print("Response from server:")
-        # print(decoded_response)
-        
-        return
+        print("Response from server:")
+        print(decoded_response)
+
 
 if __name__ == "__main__":
     main()
