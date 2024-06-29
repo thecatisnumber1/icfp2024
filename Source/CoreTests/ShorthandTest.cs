@@ -18,4 +18,20 @@ public class ShorthandTest
 
         Assert.AreEqual(expected, actual.ToICFP());
     }
+
+    [TestMethod]
+    public void RecurrsionTest()
+    {
+        var factorial = new Variable("1");
+        var n = new Variable("2");
+
+        Expression factorialFunc = RecursiveFunc(factorial, n)(
+            If(n == I(0),
+                I(1),
+                n * RecursiveCall(factorial, n - I(1))
+            )
+        );
+
+        Assert.AreEqual(120, Apply(factorialFunc, I(5)).Eval().AsInt());
+    }
 }

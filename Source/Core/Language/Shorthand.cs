@@ -1,4 +1,6 @@
-﻿namespace Core;
+﻿using System;
+
+namespace Core;
 
 public static class Shorthand
 {
@@ -16,4 +18,26 @@ public static class Shorthand
     public static Binary Take(Expression count, Expression str) => new('T', count, str);
     public static Binary Drop(Expression count, Expression str) => new('D', count, str);
     public static Binary Apply(Expression f, Expression x) => new('$', f, x);
+
+    public static Func<Expression, Expression> RecursiveFunc(Variable funcName, params Variable[] args) => content =>
+    {
+        var func = content;
+        for (int i = args.Length - 1; i >= 0; --i)
+        {
+            func = Lambda(args[i], func);
+        }
+        func = Lambda(funcName, func);
+        var g = new Variable("!");
+        return Apply(Lambda(g, Apply(g, g)), func);
+    };
+
+    public static Expression RecursiveCall(Variable funcName, params Expression[] args)
+    {
+        Expression result = Apply(funcName, funcName);
+        for (int i = args.Length - 1; i >= 0; --i)
+        {
+            result = Apply(result, args[i]);
+        }
+        return result;
+    }
 }

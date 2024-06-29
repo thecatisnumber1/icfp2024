@@ -123,6 +123,10 @@ public abstract class Expression
 
     public static Binary operator >(Expression e1, Expression e2)
         => new('>', e1, e2);
+    public static Expression operator ==(Expression e1, Expression e2)
+        => new Binary('=', e1, e2);
+    public static Expression operator !=(Expression e1, Expression e2)
+        => !(e1 == e2);
 
     public static Binary operator |(Expression e1, Expression e2)
         => new('|', e1, e2);
