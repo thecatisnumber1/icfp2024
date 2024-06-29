@@ -338,7 +338,14 @@ static void VisExpr(Expression expr, int indent, bool exact)
 
         if (simpleLeft != null && simpleRight != null)
         {
-            Console.WriteLine($"B{bin.Operator} {simpleLeft} {simpleRight}");
+            if (exact)
+            {
+                Console.WriteLine($"B{bin.Operator} {simpleLeft} {simpleRight}");
+            }
+            else
+            {
+                Console.WriteLine($"({simpleLeft} {bin.Operator} {simpleRight})");
+            }
         }
         else
         {
@@ -349,10 +356,32 @@ static void VisExpr(Expression expr, int indent, bool exact)
     }
     else if (expr is If iif)
     {
-        Console.WriteLine(exact ? "?" : "if");
-        VisExpr(iif.Condition, indent + 1, exact);
-        VisExpr(iif.Then, indent + 1, exact);
-        VisExpr(iif.Else, indent + 1, exact);
+        string? simpleCond = SimpleExpr(iif.Condition, exact);
+
+        Console.Write(exact ? "?" : "if");
+
+        if (simpleCond != null)
+        {
+            Console.Write(" " + simpleCond);
+        } else
+        {
+            Console.WriteLine();
+            VisExpr(iif.Condition, indent + 1, exact);
+        }
+
+        if (exact)
+        {
+            VisExpr(iif.Then, indent + 1, exact);
+            VisExpr(iif.Else, indent + 1, exact);
+        }
+        else
+        {
+            Console.WriteLine(" {");
+            VisExpr(iif.Then, indent + 1, exact);
+            Console.WriteLine(Indent(indent) + "} else {");
+            VisExpr(iif.Else, indent + 1, exact);
+            Console.WriteLine(Indent(indent) + "}");
+        }
     }
     else if (expr is Lambda lam)
     {
@@ -374,11 +403,11 @@ static void VisExpr(Expression expr, int indent, bool exact)
     }
 }
 
-static string? SimpleExpr(Expression expr, bool exact)
+static string? SimpleExpr(Expression expr, bool exact, bool allowBinaryOp = true)
 {
     if (exact)
     {
-        if (exact && SimpleExpr(expr, false) != null)
+        if (exact && SimpleExpr(expr, false, false) != null)
         {
             return expr.ToICFP();
         }
@@ -403,6 +432,37 @@ static string? SimpleExpr(Expression expr, bool exact)
     else if (expr is Variable v)
     {
         return $"v{v.VarKey}";
+    }
+    else if (allowBinaryOp && expr is Binary bin)
+    {
+        string? simpleLeft = SimpleExpr(bin.Left, false, false);
+        string? simpleRight = SimpleExpr(bin.Right, false, false);
+
+        if (simpleLeft != null && simpleRight != null)
+        {
+            if (bin.Operator == '=')
+            {
+                return $"({simpleLeft} == {simpleRight})";
+            } else if (bin.Operator == '$')
+            {
+                return $"{simpleLeft}({simpleRight})";
+            }
+            else
+            {
+                return $"({simpleLeft} {bin.Operator} {simpleRight})";
+            }
+        }
+    }
+    else if (allowBinaryOp && expr is Lambda)
+    {
+        Regex yCombinator = new("""
+            L(.) B\$ L(.) B\$ v\1 B\$ v\2 v\2 L\2 B\$ v\1 B\$ v\2 v\2
+            """);
+
+        if (yCombinator.IsMatch(expr.ToICFP()))
+        {
+            return "[Y Combinator]";
+        }
     }
 
     return null;
