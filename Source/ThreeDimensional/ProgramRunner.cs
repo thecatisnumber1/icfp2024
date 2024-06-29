@@ -140,7 +140,7 @@ namespace ThreeDimensional
                             case '/':
                             case '%':
                                 if (HasTwoAdjacentValues(currentGrid, capturedX, capturedY))
-                                    operations.Add(() => PerformArithmetic(nextGrid, capturedX, capturedY, cell.OperatorValue.Value));
+                                    operations.Add(() => PerformArithmetic(currentGrid, nextGrid, capturedX, capturedY, cell.OperatorValue.Value));
                                 break;
                             case '=':
                                 if (HasTwoAdjacentValues(currentGrid, capturedX, capturedY))
@@ -169,9 +169,9 @@ namespace ThreeDimensional
             return nextGrid;
         }
 
-        private void PerformArithmetic(ProgramGrid grid, int x, int y, char operation)
+        private void PerformArithmetic(ProgramGrid currentGrid, ProgramGrid nextGrid, int x, int y, char operation)
         {
-            if (TryGetOperands(grid, x, y, out int left, out int top))
+            if (TryGetOperands(currentGrid, x, y, out int left, out int top))
             {
                 int result = 0;
                 switch (operation)
@@ -185,10 +185,10 @@ namespace ThreeDimensional
                     case '%': result = left % top; break;
                 }
 
-                grid.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
-                SetResult(grid, x + 1, y, result);
-                grid.Grid[y - 1][x] = new Cell { Type = CellType.Empty };
-                SetResult(grid, x, y + 1, result);
+                nextGrid.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
+                SetResult(nextGrid, x + 1, y, result);
+                nextGrid.Grid[y - 1][x] = new Cell { Type = CellType.Empty };
+                SetResult(nextGrid, x, y + 1, result);
             }
         }
 

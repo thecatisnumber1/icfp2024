@@ -29,13 +29,23 @@ A - . # . . . . .
 . . . > . . 4 . S
 . . . 4 @ 5 . . .
 . . . . 4 . . . .", 4);*/
-
+            /*
             ProgramGrid pg = ProgramGrid.Parse(
 @". 1 . 0 . < > . 1 . 0 . < > . .
 A - . # v . . A + . # v . . . .
 . . . 1 . . . . . . 1 . . . . .
 0 = . + 5 @ 2 0 = . - 5 @ 2 . .
 . . . S . 3 . . . . S . 3 . . .", 4);
+            */
+
+            ProgramGrid pg = ProgramGrid.Parse(
+@". 1 . 0 . . 1 . 0 . . .
+A - . = . A + . = . . .
+. . . . v . . . . v . .
+0 # . . . 0 # . . . . .
+. . v -1 @ -2 . v -1 @ -2 .
+. . . . 3 . . . . 3 . .
+. . v . . . . v . . . .", 4);
 
             ProgramRunner runner = new ProgramRunner(pg);
             Console.WriteLine(runner);
