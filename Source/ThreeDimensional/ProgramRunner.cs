@@ -144,11 +144,11 @@ namespace ThreeDimensional
                                 break;
                             case '=':
                                 if (HasTwoAdjacentValues(currentGrid, capturedX, capturedY))
-                                    operations.Add(() => Equal(nextGrid, capturedX, capturedY));
+                                    operations.Add(() => Equal(currentGrid, nextGrid, capturedX, capturedY));
                                 break;
                             case '#':
                                 if (HasTwoAdjacentValues(currentGrid, capturedX, capturedY))
-                                    operations.Add(() => NotEqual(nextGrid, capturedX, capturedY));
+                                    operations.Add(() => NotEqual(currentGrid, nextGrid, capturedX, capturedY));
                                 break;
                             case '@':
                                 if (HasTimeWarpOperands(currentGrid, capturedX, capturedY))
@@ -295,25 +295,25 @@ namespace ThreeDimensional
             }
         }
 
-        private void Equal(ProgramGrid grid, int x, int y)
+        private void Equal(ProgramGrid currentGrid, ProgramGrid nextGrid, int x, int y)
         {
-            if (TryGetOperands(grid, x, y, out int left, out int top) && left == top)
+            if (TryGetOperands(currentGrid, x, y, out int left, out int top) && left == top)
             {
-                grid.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
-                SetResult(grid, x + 1, y, left);
-                grid.Grid[y - 1][x] = new Cell { Type = CellType.Empty };
-                SetResult(grid, x, y + 1, left);
+                nextGrid.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
+                SetResult(nextGrid, x + 1, y, left);
+                nextGrid.Grid[y - 1][x] = new Cell { Type = CellType.Empty };
+                SetResult(nextGrid, x, y + 1, left);
             }
         }
 
-        private void NotEqual(ProgramGrid grid, int x, int y)
+        private void NotEqual(ProgramGrid currentGrid, ProgramGrid nextGrid, int x, int y)
         {
-            if (TryGetOperands(grid, x, y, out int left, out int top) && left != top)
+            if (TryGetOperands(currentGrid, x, y, out int left, out int top) && left != top)
             {
-                grid.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
-                SetResult(grid, x + 1, y, top);
-                grid.Grid[y - 1][x] = new Cell { Type = CellType.Empty };
-                SetResult(grid, x, y + 1, left);
+                nextGrid.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
+                SetResult(nextGrid, x + 1, y, top);
+                nextGrid.Grid[y - 1][x] = new Cell { Type = CellType.Empty };
+                SetResult(nextGrid, x, y + 1, left);
             }
         }
 
