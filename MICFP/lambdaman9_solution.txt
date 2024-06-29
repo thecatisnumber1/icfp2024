@@ -1,0 +1,41 @@
+B$
+  B$
+    Y
+    L"
+      L#
+        ?
+          B= v# I!
+          SL
+          B.
+            B$
+              v"
+              B- v# I"
+            ?
+              // if (49 == (i % 50))
+              B= IR B% v# IS
+              // then "D"
+              S>
+              // else
+              ?
+                // if (0 == ((i / 50) % 2))
+                B= I! B% B/ v# IS I#
+                // then "R"
+                SL
+                // else "L"
+                SF
+  // 2500
+  I;Y
+  
+  
+  
+// B$ B$ L" B$ L# B$ v" B$ v# v# L# B$ v" B$ v# v# L" L# ? B= v# I! SL B. B$ v" B- v# I" ? B= IR B% v# IS S> ? B= I! B% B/ v# IS I# SL SF I;Y
+
+// 49 = IR
+// 50 = IS
+// 2 = I#
+// 0 = I!
+// 2500 = I;Y
+
+// L = SF
+// R = SL
+// D = S>
