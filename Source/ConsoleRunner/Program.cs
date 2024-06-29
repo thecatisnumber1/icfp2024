@@ -3,6 +3,7 @@ using ConsoleRunner;
 using Core;
 using Lib;
 using Runner;
+using System.Text;
 
 if (args.Length == 0)
 {
@@ -120,6 +121,10 @@ if (args.Length == 0)
                 }
             }
         }
+        else if (cmd == "vis")
+        {
+            Vis(cmdargs);
+        }
         else
         {
             Console.WriteLine("""
@@ -130,6 +135,7 @@ if (args.Length == 0)
                 decode <icfp>        Decode an ICFP string
                 download <taskname>  Downloads a task and its problems
                 strings <icfp>       Outputs all strings in the ICFP
+                vis <icfp>           Outputs the expression's parse tree
                 exit                 Exit
 
                 Any command run without an argument will enter input mode, which is
@@ -239,4 +245,108 @@ static string Unparse(string expr)
     }
 
     return string.Join(' ', strs);
+}
+
+static void Vis(string icfp)
+{
+    try
+    {
+        VisExpr(Expression.Parse(icfp), 0);
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine("Problem parsing expression: " + e);
+    }
+}
+
+static void VisExpr(Expression expr, int indent)
+{
+    Console.Write(Indent(indent));
+    string? simple = SimpleExpr(expr);
+
+    if (simple != null)
+    {
+        Console.WriteLine(simple);
+    }
+    else if (expr is Unary u)
+    {
+        string? simpleOp = SimpleExpr(u.Operand);
+
+        if (simpleOp != null)
+        {
+            Console.WriteLine($"U{u.Operator} {simpleOp}");
+        }
+        else
+        {
+            Console.WriteLine("U" + u.Operator);
+            VisExpr(u.Operand, indent + 1);
+        }
+    }
+    else if (expr is Binary bin)
+    {
+        string? simpleLeft = SimpleExpr(bin.Left);
+        string? simpleRight = SimpleExpr(bin.Right);
+
+        if (simpleLeft != null && simpleRight != null)
+        {
+            Console.WriteLine($"B{bin.Operator} {simpleLeft} {simpleRight}");
+        }
+        else
+        {
+            Console.WriteLine("B" + bin.Operator);
+            VisExpr(bin.Left, indent + 1);
+            VisExpr(bin.Right, indent + 1);
+        }
+    }
+    else if (expr is If iif)
+    {
+        Console.WriteLine("if");
+        VisExpr(iif.Condition, indent + 1);
+        VisExpr(iif.Then, indent + 1);
+        VisExpr(iif.Else, indent + 1);
+    }
+    else if (expr is Lambda lam)
+    {
+        Console.WriteLine($"lambda(v{lam.VariableKey}) {{");
+        VisExpr(lam.Content, indent + 1);
+        Console.WriteLine(Indent(indent) + "}");
+    }
+    else
+    {
+        Console.WriteLine("Unknown expr: " + expr.ToString());
+    }
+}
+
+static string? SimpleExpr(Expression expr)
+{
+    if (expr is Bool b)
+    {
+        return b.AsBool().ToString();
+    }
+    else if (expr is Integer n)
+    {
+        return n.AsInt().ToString();
+    }
+    else if (expr is Str s)
+    {
+        return "\"" + s.ToString() + "\"";
+    }
+    else if (expr is Variable v)
+    {
+        return $"v{v.Key}";
+    }
+
+    return null;
+}
+
+static string Indent(int indent)
+{
+    StringBuilder sb = new();
+
+    for (int i = 0; i < indent; i++)
+    {
+        sb.Append("  ");
+    }
+
+    return sb.ToString();
 }
