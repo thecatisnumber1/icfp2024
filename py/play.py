@@ -4,6 +4,7 @@ import requests
 
 # Define the custom order for the encoding
 custom_order = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`|~ \n"
+int_chars = ''.join((chr(i) for i in range(ord('!'), ord('!') + 94)))
 
 # Create a dictionary to map the custom order to standard ASCII values
 encoding_map = {char: chr(i + 33) for i, char in enumerate(custom_order)}
@@ -45,44 +46,43 @@ def communicate_with_server(encoded_text):
         return f"Error: Received status code {response.status_code}"
 
 def base94_to_int(base94_str):
-    base = len(custom_order)
+    base = len(int_chars)
     result = 0
     for char in base94_str:
-        result = result * base + custom_order.index(char)
+        result = result * base + int_chars.index(char)
     return result
 
 def int_to_base94(n):
-    base = len(custom_order)
+    base = len(int_chars)
     if n == 0:
-        return custom_order[0]
+        return int_chars[0]
     chars = []
     while n > 0:
-        chars.append(custom_order[n % base])
+        chars.append(int_chars[n % base])
         n //= base
     return ''.join(reversed(chars))
 
 
 class Token:
-    def __init__(self, token, context):
+    postfix = 0
+
+    def __init__(self, token, context=[]):
         self.token = token
-        self.context = context
         self.indicator = token[0]
         self.body = token[1:]
         self.size = 1
 
     def __str__(self) -> str:
-        return self.indicator + self.body
+        return self.pprint(space='', newline=' ')
 
-    def pprint(self, indent=0):
-        return '    ' * indent + str(self)
-    
-    @classmethod
-    def ParseProgram(cls, program):
-        tokens = program.split()
-        return cls.Parse(tokens)
+    def pprint(self, indent=0, space='    ', newline='\n'):
+        return space * indent + self.indicator + self.body
 
     @classmethod
     def Parse(cls, context):
+        if isinstance(context, str):
+            context = context.split()
+
         token = context[0]
         context = context[1:]
         indicator = token[0]
@@ -110,46 +110,54 @@ class Token:
 
     def apply(self, var, param):
         return self
+    
+    def copy(self):
+        Token.postfix += 1
+        return Token.Parse(str(self))
 
 class BooleanOperator(Token):
-    def __init__(self, token, context):
+    def __init__(self, token, context=[]):
         super().__init__(token, context)
 
     def evaluate(self):
         return self.indicator == 'T'
 
 class IntOperator(Token):
-    def __init__(self, token, context):
+    def __init__(self, token, context=[]):
         super().__init__(token, context)
 
     def evaluate(self):
         return base94_to_int(self.body)
 
 class StringOperator(Token):
-    def __init__(self, token, context):
+    def __init__(self, token, context=[]):
         super().__init__(token, context)
 
     def evaluate(self):
         return decode_string(self.body)
 
 class UnaryOperator(Token):
-    def __init__(self, token, context):
+    def __init__(self, token, context=[]):
         super().__init__(token, context)
         self.operand = Token.Parse(context)
         self.size = 1 + self.operand.size
 
-    def pprint(self, indent=0):
-        return '   ' * indent + str(self) + '\n' + self.operand.pprint(indent+1)
+    def pprint(self, indent=0, space='    ', newline='\n'):
+        return super().pprint(indent, space, newline) + newline + self.operand.pprint(indent+1, space, newline)
 
     def evaluate(self):
+        if self.operand.size > 1:
+            self.operand = self.operand.evaluate()
+            return self
+
         if self.body == '-':
-            return -self.operand.evaluate()
+            return IntOperator('I' + int_to_base94(-self.operand.evaluate()))
         elif self.body == '!':
-            return not self.operand.evaluate()
+            return BooleanOperator('T' if not self.operand.evaluate() else 'F')
         elif self.body == '#':
-            return base94_to_int(self.operand.evaluate())
+            return IntOperator('I' + self.operand.body)
         elif self.body == '$':
-            return int_to_base94(self.operand.evaluate())
+            return StringOperator('S' + self.operand.body)
         else:
             raise ValueError(f"Unknown unary operator: {self.operator}")
     
@@ -157,51 +165,64 @@ class UnaryOperator(Token):
         self.operand = self.operand.apply(var, param)
         return self
 
+
 class BinaryOperator(Token):
-    def __init__(self, token, context):
+    def __init__(self, token, context=[]):
         super().__init__(token, context)
         self.operand1 = Token.Parse(context)
         self.operand2 = Token.Parse(context[self.operand1.size:])
         self.size = 1 + self.operand1.size + self.operand2.size
 
-    def pprint(self, indent=0):
-        return '    ' * indent + str(self) + '\n' + self.operand1.pprint(indent+1) + '\n' + self.operand2.pprint(indent+1)
+    def pprint(self, indent=0, space='    ', newline='\n'):
+        return super().pprint(indent, space, newline) + newline + self.operand1.pprint(indent+1, space, newline) + newline + self.operand2.pprint(indent+1, space, newline)
 
     def evaluate(self):
         if self.body == '$':
             if isinstance(self.operand1, LambdaAbstraction):
                 return self.operand1.evaluate(self.operand2)
             else:
-                raise ValueError(f"Operand1 is not a LambdaAbstraction: {self.operand1}")
+                self.operand1 = self.operand1.evaluate()
+                return self
+
+        if self.operand1.size > 1:
+            self.operand1 = self.operand1.evaluate()
+            return self
+
+        if self.operand2.size > 1:
+            self.operand2 = self.operand2.evaluate()
+            return self
+
+        operand1 = self.operand1.evaluate()
+        operand2 = self.operand2.evaluate()
 
         if self.body == '+':
-            return self.operand1.evaluate() + self.operand2.evaluate()
+            return IntOperator('I' + int_to_base94(operand1 + operand2))
         elif self.body == '-':
-            return self.operand1.evaluate() - self.operand2.evaluate()
+            return IntOperator('I' + int_to_base94(operand1 - operand2))
         elif self.body == '*':
-            return self.operand1.evaluate() * self.operand2.evaluate()
+            return IntOperator('I' + int_to_base94(operand1 * operand2))
         elif self.body == '/':
-            return self.operand1.evaluate() // self.operand2.evaluate()
+            return IntOperator('I' + int_to_base94(operand1 // operand2))
         elif self.body == '%':
-            return self.operand1.evaluate() % self.operand2.evaluate()
+            return IntOperator('I' + int_to_base94(operand1 % operand2))
         elif self.body == '<':
-            return self.operand1.evaluate() < self.operand2.evaluate()
+            return BooleanOperator('T' if (operand1 < operand2) else 'F')
         elif self.body == '>':
-            return self.operand1.evaluate() > self.operand2.evaluate()
+            return BooleanOperator('T' if (operand1 > operand2) else 'F')
         elif self.body == '=':
-            return self.operand1.evaluate() == self.operand2.evaluate()
+            return BooleanOperator('T' if (operand1 == operand2) else 'F')
         elif self.body == '|':
-            return self.operand1.evaluate() or self.operand2.evaluate()
+            return BooleanOperator('T' if (operand1 or operand2) else 'F')
         elif self.body == '&':
-            return self.operand1.evaluate() and self.operand2.evaluate()
+            return BooleanOperator('T' if (operand1 and operand2) else 'F')
         elif self.body == '.':
-            return self.operand1.evaluate() + self.operand2.evaluate()
+            return StringOperator('S' + encode_string(operand1 + operand2))
         elif self.body == 'T':
-            return self.operand2[:self.operand1.evaluate()].evaluate()
+            return StringOperator('S' + encode_string(operand2[:operand1]))
         elif self.body == 'D':
-            return self.operand2[self.operand1.evaluate():].evaluate()
+            return StringOperator('S' + encode_string(operand2[operand1:]))
         else:
-            raise ValueError(f"Unknown binary operator: {self.operator}")
+            raise ValueError(f"Unknown binary operator: {self.body}")
 
     def apply(self, var, param):
         self.operand1 = self.operand1.apply(var, param)
@@ -209,47 +230,55 @@ class BinaryOperator(Token):
         return self
 
 class IfStatement(Token):
-    def __init__(self, token, context):
+    def __init__(self, token, context=[]):
         super().__init__(token, context)
         self.condition = Token.Parse(context)
         self.if_true = Token.Parse(context[self.condition.size:])
         self.if_false = Token.Parse(context[self.condition.size+self.if_true.size:])
         self.size = 1 + self.condition.size + self.if_true.size + self.if_false.size
 
-    def pprint(self, indent=0):
-        return '  ' * indent + str(self) + '\n' + self.condition.pprint(indent+1) + '\n' + self.if_true.pprint(indent+1) + '\n' + self.if_false.pprint(indent+1)
+    def pprint(self, indent=0, space='    ', newline='\n'):
+        return super().pprint(indent, space, newline) + newline + self.condition.pprint(indent+1, space, newline) + newline + self.if_true.pprint(indent+1, space, newline) + newline + self.if_false.pprint(indent+1, space, newline)
 
     def evaluate(self):
-        condition = self.condition.evaluate()
-        if condition:
+        if not isinstance(self.condition, BooleanOperator):
+            self.condition = self.condition.evaluate()
+            return self
+
+        if self.condition.evaluate():
             return self.if_true
         else:
             return self.if_false
 
     def apply(self, var, param):
         self.condition = self.condition.apply(var, param)
-        self.if_false = self.if_false.apply(var, param)
         self.if_true = self.if_true.apply(var, param)
+        self.if_false = self.if_false.apply(var, param)
         return self
 
 class LambdaAbstraction(Token):
-    def __init__(self, token, context):
+    def __init__(self, token, context=[]):
         super().__init__(token, context)
+        
         self.func = Token.Parse(context)
         self.size = 1 + self.func.size
 
-    def pprint(self, indent=0):
-        return '    ' * indent + str(self) + '\n' + self.func.pprint(indent+1)
+    def pprint(self, indent=0, space='    ', newline='\n'):
+        return super().pprint(indent, space, newline) + newline + self.func.pprint(indent+1, space, newline)
 
     def evaluate(self, param):
         return self.func.apply(self.body, param)
 
     def apply(self, var, param):
+        # Avoid self-capture
+        if self.body == var:
+            return self
+        
         self.func = self.func.apply(var, param)
         return self
 
 class Variable(Token):
-    def __init__(self, token, context):
+    def __init__(self, token, context=[]):
         super().__init__(token, context)
 
     def evaluate(self):
@@ -257,7 +286,7 @@ class Variable(Token):
     
     def apply(self, var, param):
         if var == self.body:
-            return param
+            return param.copy()
         else:
             return self
 
@@ -288,22 +317,29 @@ text = """
 B. SF B$ B$ L" B$ L" B$ L# B$ v" B$ v# v# L# B$ v" B$ v# v# L$ L# ? B= v# I" v" B. v" B$ v$ B- v# I" Sl I#,
 """
 
+# text = """B$ L# B$ L" B+ v" v" B* I$ I# v8"""
+
+# text = """B$ B$ L" B$ L# B$ v" B$ v# v# L# B$ v" B$ v# v# L" L# ? B= v# I! I" B$ L$ B+ B$ v" v$ B$ v" v$ B- v# I" I%"""
+
+# text = """B$ B$ L# L$ v# B. SB%,,/ S}Q/2,$_ IK"""
+
 def main():
         text = input("Enter program (or 'exit' to quit): ")
         
         if text.lower() == 'exit':
             return
 
-        program = Token.ParseProgram(text)
-        print(program.pprint())
-        print()
-
+        program = Token.Parse(text)
+        steps = 0
         while isinstance(program, Token):
-            program = program.evaluate()
+            # print(program.pprint())
+            print(program.pprint(space='', newline=' '))
             print()
-            print(program.pprint())
+            program = program.evaluate()
+            steps += 1
 
         print('Final answer: ', program)
+        print("In steps: ", steps)
 
         # Communicate with the server and get the response
         # encoded_text = encode_string(text)
