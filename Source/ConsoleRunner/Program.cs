@@ -108,7 +108,7 @@ if (args.Length == 0)
         }
         else if (cmd == "eval")
         {
-            Console.WriteLine(Expression.Parse(cmdargs).Eval().ToString());
+            Console.WriteLine(Expression.Parse(cmdargs).Eval());
         }
         else if (cmd == "download" && cmdargs != "")
         {
@@ -120,7 +120,7 @@ if (args.Length == 0)
             {
                 if (token.StartsWith('S') && token.Length > 1)
                 {
-                    Console.WriteLine(new Str(token[1..]).ToString());
+                    Console.WriteLine(new Str(token[1..]));
                 }
             }
         }
@@ -140,9 +140,12 @@ if (args.Length == 0)
         {
             Console.WriteLine(MICFP.Compile(cmdargs));
         }
-        else if (cmd == "echo")
+        else if (cmd.StartsWith("echo"))
         {
-            string? icfpReply = Communicator.Send("B. S%#(/} U$ " + cmdargs);
+            // For normal echo, prefix command with U$ to convert number to string
+            // because B. only works for string args
+            string intToStr = (cmd == "echo") ? "U$ " : "";
+            string? icfpReply = Communicator.Send("B. S%#(/} " + intToStr + cmdargs);
 
             if (icfpReply == null)
             {
@@ -150,11 +153,17 @@ if (args.Length == 0)
             }
 
             string reply = Expression.Parse(icfpReply).Eval().ToString() ?? "";
-            string value = reply.Split("\n")[0].Trim();
+            string value = reply.Replace("You scored some points for using the echo service!", "").Trim();
 
-
-
-            Console.WriteLine();
+            if (cmd == "echo")
+            {
+                // Undo the U$ we used by applying a U#
+                Console.WriteLine(new Unary('#', Str.Make(value)).Eval());
+            }
+            else
+            {
+                Console.WriteLine(value);
+            }
         }
         else
         {
@@ -174,13 +183,15 @@ if (args.Length == 0)
                 parse <icfp>         Outputs the expression's parse tree
                 unparse              Returns parsed output to single-line
                 compile <micfp>      Compiles MICFP to ICFP
+                echo <icfp>          Evals a number-valued ICFP using the server's echo program
+                echo-str <icfp>      Evals a string-valued ICFP using the server's echo program
                 exit                 Exit
 
                 Any command run without an argument will enter input mode, which is
                 useful for entering multiline content.
 
                 Any command accepting an argument can also accept a file by using <
-                decode < spaceship1-raw.txt
+                eval < spaceship1-raw.txt
 
                 All such files are searched for recursively in the Tasks and MICFP directories.
             """);
