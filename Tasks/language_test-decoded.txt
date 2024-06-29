@@ -1,0 +1,1 @@
+Self-check OK, send `solve language_test 4w3s0m3` to claim points for it
