@@ -402,7 +402,7 @@ static string? SimpleExpr(Expression expr, bool exact)
     }
     else if (expr is Variable v)
     {
-        return $"v{v.Key}";
+        return $"v{v.VarKey}";
     }
 
     return null;

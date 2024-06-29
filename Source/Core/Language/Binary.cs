@@ -13,6 +13,12 @@ public class Binary : Expression
 
     public Binary(char op, Expression left, Expression right)
     {
+        if (left.Equals(right))
+        {
+            // Drop it in case it is a duplicate object with matching expression
+            right = left;
+        }
+
         Left = left;
         Right = right;
         Operator = op;
@@ -22,7 +28,8 @@ public class Binary : Expression
     internal override Value Eval(Dictionary<long, Value> environment)
     {
         Value left = Left.Eval(environment);
-        Value right = Right.Eval(environment);
+        // Don't eval again if it is the same expression
+        Value right = left.Equals(Right) ? left : Right.Eval(environment);
 
         Value result = Operator switch
         {
