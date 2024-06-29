@@ -4,12 +4,16 @@ namespace Core;
 
 public class Str : Value
 {
+    const int UPPER_HASH_MAGICK = 1560627002;
+    const int LOWER_HASH_MAGICK = -1142775805;
+
     public string Value { get { return Encodings.DecodeMachineString(MachineValue); } }
     public string MachineValue { get; }
 
     public Str(string machineValue)
     {
         MachineValue = machineValue;
+        CreateKey(UPPER_HASH_MAGICK, LOWER_HASH_MAGICK, MachineValue);
     }
 
     public static Str Make(string value)
@@ -42,18 +46,12 @@ public class Str : Value
         return Value.ToString();
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
-        if (obj is Str other)
+        if (obj is Str other && Key == other.Key)
         {
             return MachineValue == other.MachineValue;
         }
         return false;
     }
-
-    public override int GetHashCode()
-    {
-        return MachineValue.GetHashCode();
-    }
-
 }

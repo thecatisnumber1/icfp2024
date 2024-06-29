@@ -8,7 +8,7 @@ public static class Shorthand
     public static Str S(string val) => Str.Make(val);
     public static If If(Expression condition, Expression then, Expression @else) => new(condition, then, @else);
     public static Variable V(string key) => new(key);
-    public static Lambda Lambda(Variable v, Expression body) => new(v.Key, body);
+    public static Lambda Lambda(Variable v, Expression body) => new(v.VarKey, body);
 
     public static Unary StrToInt(Expression e) => new('#', e);
     public static Unary IntToStr(Expression e) => new('$', e);

@@ -4,18 +4,21 @@ namespace Core;
 
 public class Integer : Value
 {
+    const int UPPER_HASH_MAGICK = -137309617;
+    const int LOWER_HASH_MAGICK = -1852578069;
+
     public long Value { get; }
     public string MachineValue { get { return Encodings.EncodeMachineInt(Value); } }
 
     public Integer(long value)
     {
         Value = value;
+        CreateKey(UPPER_HASH_MAGICK, LOWER_HASH_MAGICK, Value);
     }
 
     public Integer(string machineValue)
-    {
-        Value = Encodings.DecodeMachineInt(machineValue);
-    }
+        : this(Encodings.DecodeMachineInt(machineValue))
+    {}
 
     internal override void AppendICFP(StringBuilder builder)
     {
@@ -35,19 +38,12 @@ public class Integer : Value
         return Value.ToString();
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
-        if (obj is Integer other)
+        if (obj is Integer other && Key == other.Key)
         {
             return Value == other.Value;
         }
         return false;
     }
-
-    public override int GetHashCode()
-    {
-        return Value.GetHashCode();
-    }
-
-    
 }

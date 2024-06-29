@@ -5,43 +5,42 @@ namespace Core;
 
 public class Variable : Expression
 {
-    public long Key { get; }
+    const int UPPER_HASH_MAGICK = -728727012;
+    const int LOWER_HASH_MAGICK = 653149098;
+
+    public long VarKey { get; }
 
     public Variable(string key)
     {
-        Key = Encodings.DecodeMachineInt(key);
+        VarKey = Encodings.DecodeMachineInt(key);
+        CreateKey(UPPER_HASH_MAGICK, LOWER_HASH_MAGICK, VarKey);
     }
 
     internal override void AppendICFP(StringBuilder builder)
     {
-        builder.Append($"v{Encodings.EncodeMachineInt(Key)}");
+        builder.Append($"v{Encodings.EncodeMachineInt(VarKey)}");
     }
 
     internal override Value Eval(Dictionary<long, Value> environment)
     {
-        if (!environment.ContainsKey(Key)) {
-            throw new EvaluationException($"Variable {Key} not found in environment");
+        if (!environment.ContainsKey(VarKey)) {
+            throw new EvaluationException($"Variable {VarKey} not found in environment");
         }
 
-        return environment[Key];
+        return environment[VarKey];
     }
 
     public override string ToString()
     {
-        return Encodings.EncodeMachineInt(Key);
+        return Encodings.EncodeMachineInt(VarKey);
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
-        if (obj is Variable other)
+        if (obj is Variable other && Key == other.Key)
         {
-            return Key == other.Key;
+            return VarKey == other.VarKey;
         }
         return false;
-    }
-
-    public override int GetHashCode()
-    {
-        return Key.GetHashCode();
     }
 }

@@ -4,6 +4,9 @@ namespace Core;
 
 public class If : Expression
 {
+    const int UPPER_HASH_MAGICK = -1880081444;
+    const int LOWER_HASH_MAGICK = -1777177774;
+
     public Expression Condition { get; }
     public Expression Then { get; }
     public Expression Else { get; }
@@ -13,6 +16,7 @@ public class If : Expression
         Condition = condition;
         Then = then;
         Else = @else;
+        CreateKey(UPPER_HASH_MAGICK, LOWER_HASH_MAGICK, Condition, Then, Else);
     }
 
     internal override void AppendICFP(StringBuilder builder)
@@ -38,15 +42,10 @@ public class If : Expression
 
     public override bool Equals(object obj)
     {
-        if (obj is If other)
+        if (obj is If other && Key == other.Key)
         {
             return Condition.Equals(other.Condition) && Then.Equals(other.Then) && Else.Equals(other.Else);
         }
         return false;
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(Condition, Then, Else);
     }
 }

@@ -4,6 +4,21 @@ namespace Core;
 
 public abstract class Expression
 {
+    public long Key { get; private set; }
+
+    protected void CreateKey(
+        int magicUpper,
+        int magicLower,
+        object term1,
+        object? term2 = null,
+        object? term3 = null
+        )
+    {
+        int upper = HashCode.Combine(magicUpper, term1, term2, term3);
+        int lower = HashCode.Combine(term1, term2, term3, magicLower);
+        Key = ((long)upper << 32) | (uint)lower;
+    }
+
     public Value Eval()
     {
         return Eval(new());
