@@ -27,16 +27,7 @@ public class Lambda : Expression
 
     internal override Value Eval(Dictionary<long, Value> environment)
     {
-        int hash = HashEval(environment);
-        _evalCache.TryGetValue(hash, out var value);
-        if (value != null)
-        {
-            return value;
-        }
-
-        Value result = new Closure(this, environment);
-        _evalCache[hash] = result;
-        return result;
+        return new Closure(this, environment);
     }
 
     public override string ToString()

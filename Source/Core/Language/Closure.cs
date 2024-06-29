@@ -49,9 +49,4 @@ public class Closure : Value
         }
         return false;
     }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(Lambda, HashEnvironment(Environment));
-    }
 }

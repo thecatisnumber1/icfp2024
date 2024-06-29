@@ -21,13 +21,6 @@ public class Unary : Expression
 
     internal override Value Eval(Dictionary<long, Value> environment)
     {
-        int hash = HashEval(environment);
-        _evalCache.TryGetValue(hash, out var value);
-        if (value != null)
-        {
-            return value;
-        }
-
         var operand = Operand.Eval(environment);
 
         Value result = Operator switch
@@ -39,7 +32,6 @@ public class Unary : Expression
             _ => throw new EvaluationException($"Invalid unary operator {Operator}"),
         };
 
-        _evalCache[hash] = result;
         return result;
     }
 

@@ -4,26 +4,8 @@ namespace Core;
 
 public abstract class Expression
 {
-    protected static Dictionary<int, Value> _evalCache = new();
-
-    protected static int HashEnvironment(Dictionary<long, Value> environment)
-    {
-        int hash = 0;
-        foreach (var kvp in environment)
-        {
-            hash = HashCode.Combine(hash, kvp.Key, kvp.Value);
-        }
-        return hash;
-    }
-
-    protected int HashEval(Dictionary<long, Value> environment)
-    {
-        return HashCode.Combine(GetHashCode(), HashEnvironment(environment));
-    }
-
     public Value Eval()
     {
-        _evalCache = new();
         return Eval(new());
     }
 

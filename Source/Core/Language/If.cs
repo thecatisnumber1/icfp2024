@@ -27,18 +27,8 @@ public class If : Expression
 
     internal override Value Eval(Dictionary<long, Value> environment)
     {
-        int hash = HashEval(environment);
-        _evalCache.TryGetValue(hash, out var value);
-        if (value != null)
-        {
-            return value;
-        }
-
         var condition = Condition.Eval(environment);
-
-        Value result = condition.AsBool() ? Then.Eval(environment) : Else.Eval(environment);
-        _evalCache[hash] = result;
-        return result;
+        return condition.AsBool() ? Then.Eval(environment) : Else.Eval(environment);
     }
 
     public override string ToString()
