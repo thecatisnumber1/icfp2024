@@ -12,15 +12,15 @@ namespace LambdaMan
                 string result = LambdaManSolver.Solve(problem.Duplicate());
                 string submissionString = $"solve {problem.Name} " + result;
                 Console.WriteLine($"{problem.Name} solution = {result}");
-                //var res = 
-                //    SolutionSubmitter.submitSoluton(
-                //        "lambdaman", 
-                //        problem.Name, 
-                //        result.Length, 
-                //        "S" + Encodings.EncodeMachineString(submissionString), 
-                //        new Dictionary<string, string>());
+                var res = 
+                    SolutionSubmitter.submitSoluton(
+                        "lambdaman", 
+                        problem.Name, 
+                        result.Length, 
+                        "S" + Encodings.EncodeMachineString(submissionString), 
+                        new Dictionary<string, string>());
 
-                //Console.WriteLine($"{problem.Name} score = {res.score}");
+                Console.WriteLine($"{problem.Name} score = {res.score}");
             }
         }
 
