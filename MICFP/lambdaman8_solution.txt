@@ -1,0 +1,47 @@
+B$
+  B$
+    Y
+    L"
+      L#
+        ?
+          B< v# I!
+          S
+          B.
+            B$
+              v"
+              B- v# I"
+            // Take first character
+            BT
+              I"
+              // Drop first ((i / 98) % 4) chars from "DLUR"
+              BD
+                B% B/ v# I"% I%
+                S>FOL
+  // 9603
+  I")0
+  
+  
+  
+// 
+
+
+// 4 = I%
+// 1 = I"
+// 0 = I!
+// 9603 = I")0
+// 98 = I"%
+
+// DLUR = S>FOL
+
+// string solution = "";
+// string dirs = "DLUR";
+// // corners = 24*4 + 2 = 98
+// // max_straight = 98
+// // corners * max_straight = 9604
+// string Take(int n, string str) => str[0..n];
+// string Drop(int n, string str) => str[n..];
+
+// for (int i = 0; i < 9604; i++)
+// {
+//    solution += Take(1, Drop((i / 98) % 4, dirs));
+// }

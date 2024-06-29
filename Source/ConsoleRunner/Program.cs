@@ -165,6 +165,35 @@ if (args.Length == 0)
                 Console.WriteLine(value);
             }
         }
+        else if (cmd == "submit")
+        {
+            Console.Write("For which problem (e.g. lambdaman1)? ");
+            string problem = Console.ReadLine() ?? "";
+
+            var file = tasksFinder.FindFile(problem + "-raw.txt");
+
+            if (file == null)
+            {
+                Console.WriteLine("No such problem: " + problem);
+                continue;
+            }
+
+            string solution = "B. " + Shorthand.S($"solve {problem} ").ToICFP() + " " + cmdargs;
+
+            Console.Write($"What is the expected score (default to solution length {solution.Length})? ");
+
+            if (!int.TryParse(Console.ReadLine(), out int expectedScore))
+            {
+                expectedScore = solution.Length;
+            };
+
+            string task = Path.GetFileName(Path.GetDirectoryName(file.FullName)) ?? throw new Exception();
+
+            var meta = new Dictionary<string, string> { { "programmed", "true" } };
+            var result = SolutionSubmitter.submitSoluton(task, problem, expectedScore, solution, meta);
+
+            Console.WriteLine(result.status);
+        }
         else
         {
             if (cmd != "help")
