@@ -12,6 +12,7 @@ namespace ThreeDimensional
         private int? _resultValue;
         private const int MaxTicks = 1_000_000;
         private int _timeWarpTick = -1;
+        private bool[,] _written;
 
         public ProgramRunner(ProgramGrid initialGrid)
         {
@@ -27,6 +28,7 @@ namespace ThreeDimensional
             }
 
             var currentGrid = _history[_currentTick - 1];
+            _written = new bool[currentGrid.Grid.Count, currentGrid.Grid[0].Count];
             var nextGrid = ExecuteTick(currentGrid);
 
             if (_timeWarpTick != -1)
@@ -141,11 +143,11 @@ namespace ThreeDimensional
                                     operations.Add(() => PerformArithmetic(nextGrid, capturedX, capturedY, cell.OperatorValue.Value));
                                 break;
                             case '=':
-                                if (HasTwoEqualAdjacentValues(currentGrid, capturedX, capturedY))
+                                if (HasTwoAdjacentValues(currentGrid, capturedX, capturedY))
                                     operations.Add(() => Equal(nextGrid, capturedX, capturedY));
                                 break;
                             case '#':
-                                if (HasTwoUnequalAdjacentValues(currentGrid, capturedX, capturedY))
+                                if (HasTwoAdjacentValues(currentGrid, capturedX, capturedY))
                                     operations.Add(() => NotEqual(nextGrid, capturedX, capturedY));
                                 break;
                             case '@':
@@ -200,28 +202,6 @@ namespace ThreeDimensional
             return IsValidPosition(grid, x, y) && grid.Grid[y][x].Type == CellType.Integer;
         }
 
-        private bool HasTwoEqualAdjacentValues(ProgramGrid grid, int x, int y)
-        {
-            var values = GetAdjacentValues(grid, x, y);
-            return values.Count == 2 && values[0] == values[1];
-        }
-
-        private bool HasTwoUnequalAdjacentValues(ProgramGrid grid, int x, int y)
-        {
-            var values = GetAdjacentValues(grid, x, y);
-            return values.Count == 2 && values[0] != values[1];
-        }
-
-        private List<int> GetAdjacentValues(ProgramGrid grid, int x, int y)
-        {
-            var values = new List<int>();
-            if (HasAdjacentValue(grid, x - 1, y)) values.Add(grid.Grid[y][x - 1].IntegerValue.Value);
-            if (HasAdjacentValue(grid, x + 1, y)) values.Add(grid.Grid[y][x + 1].IntegerValue.Value);
-            if (HasAdjacentValue(grid, x, y - 1)) values.Add(grid.Grid[y - 1][x].IntegerValue.Value);
-            if (HasAdjacentValue(grid, x, y + 1)) values.Add(grid.Grid[y + 1][x].IntegerValue.Value);
-            return values;
-        }
-
         private bool HasTimeWarpOperands(ProgramGrid grid, int x, int y)
         {
             return HasAdjacentValue(grid, x - 1, y) && // dx
@@ -237,13 +217,19 @@ namespace ThreeDimensional
 
         private void MoveLeft(ProgramGrid current, ProgramGrid next, int x, int y)
         {
-            if (next.Grid[y][x - 1].OperatorValue != 'S' && next.Grid[y][x - 1].Type != CellType.Empty && current.Grid[y][x + 1].Type != CellType.Empty)
+            if (_written[y, x - 1])
             {
                 throw new Exception("Writing multiple values to the same cell");
             }
 
+            _written[y, x - 1] = true;
             if (x > 0 && current.Grid[y][x + 1].Type != CellType.Empty)
             {
+                if (next.Grid[y][x - 1].OperatorValue == 'S')
+                {
+                    _resultValue = current.Grid[y][x + 1].IntegerValue;
+                }
+
                 next.Grid[y][x - 1] = current.Grid[y][x + 1];
                 next.Grid[y][x + 1] = new Cell { Type = CellType.Empty };
             }
@@ -251,13 +237,19 @@ namespace ThreeDimensional
 
         private void MoveRight(ProgramGrid current, ProgramGrid next, int x, int y)
         {
-            if (next.Grid[y][x + 1].OperatorValue != 'S' && next.Grid[y][x + 1].Type != CellType.Empty && current.Grid[y][x - 1].Type != CellType.Empty)
+            if (_written[y, x + 1])
             {
                 throw new Exception("Writing multiple values to the same cell");
             }
 
+            _written[y, x + 1] = true;
             if (x < next.Grid[y].Count - 1 && current.Grid[y][x - 1].Type != CellType.Empty)
             {
+                if (next.Grid[y][x + 1].OperatorValue == 'S')
+                {
+                    _resultValue = current.Grid[y][x - 1].IntegerValue;
+                }
+
                 next.Grid[y][x + 1] = current.Grid[y][x - 1];
                 next.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
             }
@@ -265,13 +257,19 @@ namespace ThreeDimensional
 
         private void MoveUp(ProgramGrid current, ProgramGrid next, int x, int y)
         {
-            if (next.Grid[y - 1][x].OperatorValue != 'S' && next.Grid[y - 1][x].Type != CellType.Empty && current.Grid[y + 1][x].Type != CellType.Empty)
+            if (_written[y - 1, x])
             {
                 throw new Exception("Writing multiple values to the same cell");
             }
 
+            _written[y - 1, x] = true;
             if (y > 0 && current.Grid[y + 1][x].Type != CellType.Empty)
             {
+                if (next.Grid[y - 1][x].OperatorValue == 'S')
+                {
+                    _resultValue = current.Grid[y + 1][x].IntegerValue;
+                }
+
                 next.Grid[y - 1][x] = current.Grid[y + 1][x];
                 next.Grid[y + 1][x] = new Cell { Type = CellType.Empty };
             }
@@ -279,13 +277,19 @@ namespace ThreeDimensional
 
         private void MoveDown(ProgramGrid current, ProgramGrid next, int x, int y)
         {
-            if (next.Grid[y + 1][x].OperatorValue != 'S' && next.Grid[y + 1][x].Type != CellType.Empty && current.Grid[y - 1][x].Type != CellType.Empty)
+            if (_written[y + 1, x])
             {
                 throw new Exception("Writing multiple values to the same cell");
             }
 
+            _written[y + 1, x] = true;
             if (y < next.Grid.Count - 1 && current.Grid[y - 1][x].Type != CellType.Empty)
             {
+                if (next.Grid[y + 1][x].OperatorValue == 'S')
+                {
+                    _resultValue = current.Grid[y - 1][x].IntegerValue;
+                }
+
                 next.Grid[y + 1][x] = current.Grid[y - 1][x];
                 next.Grid[y - 1][x] = new Cell { Type = CellType.Empty };
             }
@@ -293,6 +297,8 @@ namespace ThreeDimensional
 
         private void Equal(ProgramGrid grid, int x, int y)
         {
+            TryGetOperands(grid, x, y, out int test1, out int test2);
+
             if (TryGetOperands(grid, x, y, out int left, out int top) && left == top)
             {
                 grid.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
@@ -338,7 +344,6 @@ namespace ThreeDimensional
                 if (cell.Type == CellType.Integer)
                 {
                     value = cell.IntegerValue.Value;
-                    grid.Grid[y][x] = new Cell { Type = CellType.Empty };
                     return true;
                 }
             }
@@ -347,11 +352,12 @@ namespace ThreeDimensional
 
         private void SetResult(ProgramGrid grid, int x, int y, int result)
         {
-            if (grid.Grid[y][x].OperatorValue != 'S' && grid.Grid[y][x].Type != CellType.Empty)
+            if (_written[y, x])
             {
                 throw new Exception("Writing multiple values to the same cell");
             }
 
+            _written[y, x] = true;
             if (grid.Grid[y][x].OperatorValue == 'S')
             {
                 _resultValue = result;
