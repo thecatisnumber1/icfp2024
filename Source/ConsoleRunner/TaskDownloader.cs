@@ -28,11 +28,6 @@ public static class TaskDownloader
 
         var taskProblemsDir = Finder.GIT.GetRelativeDir(Path.Combine(TASKS_DIR, taskName));
 
-        if (!taskProblemsDir.Exists)
-        {
-            taskProblemsDir.Create();
-        }
-
         Regex regex = new(@"^\* \[(" + taskName + @"\d+)\]");
 
         foreach (string line in taskText.Split("\r\n"))
@@ -41,6 +36,11 @@ public static class TaskDownloader
 
             if (match.Success)
             {
+                if (!taskProblemsDir.Exists)
+                {
+                    taskProblemsDir.Create();
+                }
+
                 string problem = match.Groups[1].Value;
 
                 if (DownloadSingle(problem, taskProblemsDir.FullName) == null)
