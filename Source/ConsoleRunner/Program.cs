@@ -333,19 +333,11 @@ static void VisExpr(Expression expr, int indent, bool exact)
     }
     else if (expr is Binary bin)
     {
-        string? simpleLeft = SimpleExpr(bin.Left, exact);
-        string? simpleRight = SimpleExpr(bin.Right, exact);
+        string? simpleBin = SimpleBinOp(bin);
 
-        if (simpleLeft != null && simpleRight != null)
+        if (simpleBin != null)
         {
-            if (exact)
-            {
-                Console.WriteLine($"B{bin.Operator} {simpleLeft} {simpleRight}");
-            }
-            else
-            {
-                Console.WriteLine($"({simpleLeft} {bin.Operator} {simpleRight})");
-            }
+            Console.WriteLine(simpleBin);
         }
         else
         {
@@ -363,10 +355,20 @@ static void VisExpr(Expression expr, int indent, bool exact)
         if (simpleCond != null)
         {
             Console.Write(" " + simpleCond);
+
+            if (!exact)
+            {
+                Console.WriteLine(" {");
+            }
         } else
         {
             Console.WriteLine();
             VisExpr(iif.Condition, indent + 1, exact);
+
+            if (!exact)
+            {
+                Console.WriteLine(Indent(indent) + "{");
+            }
         }
 
         if (exact)
@@ -376,7 +378,6 @@ static void VisExpr(Expression expr, int indent, bool exact)
         }
         else
         {
-            Console.WriteLine(" {");
             VisExpr(iif.Then, indent + 1, exact);
             Console.WriteLine(Indent(indent) + "} else {");
             VisExpr(iif.Else, indent + 1, exact);
@@ -435,33 +436,41 @@ static string? SimpleExpr(Expression expr, bool exact, bool allowBinaryOp = true
     }
     else if (allowBinaryOp && expr is Binary bin)
     {
-        string? simpleLeft = SimpleExpr(bin.Left, false, false);
-        string? simpleRight = SimpleExpr(bin.Right, false, false);
-
-        if (simpleLeft != null && simpleRight != null)
-        {
-            if (bin.Operator == '=')
-            {
-                return $"({simpleLeft} == {simpleRight})";
-            } else if (bin.Operator == '$')
-            {
-                return $"{simpleLeft}({simpleRight})";
-            }
-            else
-            {
-                return $"({simpleLeft} {bin.Operator} {simpleRight})";
-            }
-        }
+        return SimpleBinOp(bin);
     }
     else if (allowBinaryOp && expr is Lambda)
     {
         Regex yCombinator = new("""
-            L(.) B\$ L(.) B\$ v\1 B\$ v\2 v\2 L\2 B\$ v\1 B\$ v\2 v\2
+            ^L(.) B\$ L(.) B\$ v\1 B\$ v\2 v\2 L\2 B\$ v\1 B\$ v\2 v\2$
             """);
 
         if (yCombinator.IsMatch(expr.ToICFP()))
         {
             return "[Y Combinator]";
+        }
+    }
+
+    return null;
+}
+
+static string? SimpleBinOp(Binary bin)
+{
+    string? simpleLeft = SimpleExpr(bin.Left, false, false);
+    string? simpleRight = SimpleExpr(bin.Right, false, false);
+
+    if (simpleLeft != null && simpleRight != null)
+    {
+        if (bin.Operator == '=')
+        {
+            return $"({simpleLeft} == {simpleRight})";
+        }
+        else if (bin.Operator == '$')
+        {
+            return $"{simpleLeft}({simpleRight})";
+        }
+        else
+        {
+            return $"({simpleLeft} {bin.Operator} {simpleRight})";
         }
     }
 
