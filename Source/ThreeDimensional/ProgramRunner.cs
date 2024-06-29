@@ -297,8 +297,6 @@ namespace ThreeDimensional
 
         private void Equal(ProgramGrid grid, int x, int y)
         {
-            TryGetOperands(grid, x, y, out int test1, out int test2);
-
             if (TryGetOperands(grid, x, y, out int left, out int top) && left == top)
             {
                 grid.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
