@@ -8,8 +8,7 @@ namespace ThreeDimensional
         static void Main(string[] args)
         {
             string problemName = "3d2";
-            string s = File.ReadAllText($"Programs/{problemName}.3d");
-            s = s.Replace("\r", "");
+            string s = ReadProblem(problemName);
 
             RegularizeFile("*.3d");
             RunWithVisualization(s, -3);
@@ -36,6 +35,20 @@ namespace ThreeDimensional
 
             Console.WriteLine(runner.GetResult());
         }
+
+        static string ReadProblem(string problemName)
+        {
+            string s = File.ReadAllText(
+                Finder.SOLUTION
+                .FindDir("ThreeDimensional")
+                .GetDirectories("Problems")
+                .FirstOrDefault()
+                .GetFiles($"{problemName}.3d")
+                .FirstOrDefault()
+                .FullName);
+            return s.Replace("\r", "");
+        }
+
         static void RegularizeFile(string pattern)
         {
             foreach (var f in Finder.SOLUTION.FindDir("ThreeDimensional").GetDirectories("Programs").FirstOrDefault().GetFiles(pattern))
