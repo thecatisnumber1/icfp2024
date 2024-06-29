@@ -16,15 +16,14 @@ B$
               // then "D"
               S>
               // else
-              ?
-                // if (0 == ((i / 50) % 2))
-                B= I! B% B/ v# IS I#
-                // then "R"
-                SL
-                // else "L"
-                SF
-  // 2500
-  I;Y
+              // Get ((i / 50) % 2)th character from "RL"
+              BT
+                I"
+                BD
+                  B% B/ v# IS I#
+                  SLF
+  // 2498
+  I;W
   
   
   
@@ -34,7 +33,7 @@ B$
 // 50 = IS
 // 2 = I#
 // 0 = I!
-// 2500 = I;Y
+// 2498 = I;W
 
 // L = SF
 // R = SL
