@@ -185,9 +185,16 @@ namespace ThreeDimensional
                     case '%': result = left % top; break;
                 }
 
-                nextGrid.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
+                if (!_written[y, x -1])
+                {
+                    nextGrid.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
+                }
                 SetResult(nextGrid, x + 1, y, result);
-                nextGrid.Grid[y - 1][x] = new Cell { Type = CellType.Empty };
+
+                if (!_written[y - 1, x])
+                {
+                    nextGrid.Grid[y - 1][x] = new Cell { Type = CellType.Empty };
+                }
                 SetResult(nextGrid, x, y + 1, result);
             }
         }
@@ -231,7 +238,10 @@ namespace ThreeDimensional
                 }
 
                 next.Grid[y][x - 1] = current.Grid[y][x + 1];
-                next.Grid[y][x + 1] = new Cell { Type = CellType.Empty };
+                if (!_written[y, x + 1])
+                {
+                    next.Grid[y][x + 1] = new Cell { Type = CellType.Empty };
+                }
             }
         }
 
@@ -251,7 +261,10 @@ namespace ThreeDimensional
                 }
 
                 next.Grid[y][x + 1] = current.Grid[y][x - 1];
-                next.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
+                if (!_written[y, x - 1])
+                {
+                    next.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
+                }
             }
         }
 
@@ -271,7 +284,10 @@ namespace ThreeDimensional
                 }
 
                 next.Grid[y - 1][x] = current.Grid[y + 1][x];
-                next.Grid[y + 1][x] = new Cell { Type = CellType.Empty };
+                if (!_written[y + 1, x])
+                {
+                    next.Grid[y + 1][x] = new Cell { Type = CellType.Empty };
+                }
             }
         }
 
@@ -291,7 +307,10 @@ namespace ThreeDimensional
                 }
 
                 next.Grid[y + 1][x] = current.Grid[y - 1][x];
-                next.Grid[y - 1][x] = new Cell { Type = CellType.Empty };
+                if (!_written[y - 1, x])
+                {
+                    next.Grid[y - 1][x] = new Cell { Type = CellType.Empty };
+                }
             }
         }
 
@@ -299,9 +318,16 @@ namespace ThreeDimensional
         {
             if (TryGetOperands(currentGrid, x, y, out int left, out int top) && left == top)
             {
-                nextGrid.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
+                if (!_written[y, x - 1])
+                {
+                    nextGrid.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
+                }
                 SetResult(nextGrid, x + 1, y, left);
-                nextGrid.Grid[y - 1][x] = new Cell { Type = CellType.Empty };
+
+                if (!_written[y - 1, x])
+                {
+                    nextGrid.Grid[y - 1][x] = new Cell { Type = CellType.Empty };
+                }
                 SetResult(nextGrid, x, y + 1, left);
             }
         }
@@ -310,9 +336,16 @@ namespace ThreeDimensional
         {
             if (TryGetOperands(currentGrid, x, y, out int left, out int top) && left != top)
             {
-                nextGrid.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
+                if (!_written[y, x - 1])
+                {
+                    nextGrid.Grid[y][x - 1] = new Cell { Type = CellType.Empty };
+                }
                 SetResult(nextGrid, x + 1, y, top);
-                nextGrid.Grid[y - 1][x] = new Cell { Type = CellType.Empty };
+
+                if (!_written[y - 1, x])
+                {
+                    nextGrid.Grid[y - 1][x] = new Cell { Type = CellType.Empty };
+                }
                 SetResult(nextGrid, x, y + 1, left);
             }
         }
@@ -380,7 +413,7 @@ namespace ThreeDimensional
             if (hasV)
             {
                 v = grid.Grid[y - 1][x].Clone();
-                grid.Grid[y - 1][x] = new Cell { Type = CellType.Empty };
+                //grid.Grid[y - 1][x] = new Cell { Type = CellType.Empty }; I think this is dumb and not needed, but keeping in case
             }
 
             return hasDx && hasDy && hasDt && hasV;
