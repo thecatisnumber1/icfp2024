@@ -4,6 +4,7 @@ using Core;
 using Lib;
 using Runner;
 using System.Text;
+using System.Text.RegularExpressions;
 
 if (args.Length == 0)
 {
@@ -12,6 +13,7 @@ if (args.Length == 0)
     Console.Write("> ");
 
     Finder tasksFinder = new(Finder.GIT.GetRelativeDir("Tasks").FullName);
+    Finder micfpFinder = new(Finder.GIT.GetRelativeDir("MICFP").FullName);
 
     string? line;
     while ((line = Console.ReadLine()) != null)
@@ -39,10 +41,11 @@ if (args.Length == 0)
             {
                 // Search for the file recursively in Tasks
                 var file = tasksFinder.FindFile(splitArgs[1]);
+                file ??= micfpFinder.FindFile(splitArgs[1]);
 
                 if (file == null)
                 {
-                    Console.WriteLine("No such file in Tasks: " + splitArgs[1]);
+                    Console.WriteLine("No such file: " + splitArgs[1]);
                     continue;
                 }
 
@@ -103,7 +106,7 @@ if (args.Length == 0)
         {
             Console.WriteLine(Unparse(cmdargs));
         }
-        else if (cmd == "decode")
+        else if (cmd == "eval")
         {
             Console.WriteLine(Expression.Parse(cmdargs).Eval().ToString());
         }
@@ -123,7 +126,35 @@ if (args.Length == 0)
         }
         else if (cmd == "vis")
         {
-            Vis(cmdargs);
+            Vis(cmdargs, false);
+        }
+        else if (cmd == "parse")
+        {
+            Vis(cmdargs, true);
+        }
+        else if (cmd == "unparse")
+        {
+            Console.WriteLine(new Regex(@"\s+").Replace(cmdargs, " "));
+        }
+        else if (cmd == "compile")
+        {
+            Console.WriteLine(MICFP.Compile(cmdargs));
+        }
+        else if (cmd == "echo")
+        {
+            string? icfpReply = Communicator.Send("B. S%#(/} U$ " + cmdargs);
+
+            if (icfpReply == null)
+            {
+                continue;
+            }
+
+            string reply = Expression.Parse(icfpReply).Eval().ToString() ?? "";
+            string value = reply.Split("\n")[0].Trim();
+
+
+
+            Console.WriteLine();
         }
         else
         {
@@ -135,7 +166,8 @@ if (args.Length == 0)
                 decode <icfp>        Decode an ICFP string
                 download <taskname>  Downloads a task and its problems
                 strings <icfp>       Outputs all strings in the ICFP
-                vis <icfp>           Outputs the expression's parse tree
+                vis <icfp>           Outputs the expression's parse tree in a more readable view
+                parse <icfp>         Outputs the expression's parse tree
                 exit                 Exit
 
                 Any command run without an argument will enter input mode, which is
@@ -144,7 +176,7 @@ if (args.Length == 0)
                 Any command accepting an argument can also accept a file by using <
                 decode < spaceship1-raw.txt
 
-                All such files are searched for recursively in the Tasks directory.
+                All such files are searched for recursively in the Tasks and MICFP directories.
             """);
         }
 
@@ -247,11 +279,11 @@ static string Unparse(string expr)
     return string.Join(' ', strs);
 }
 
-static void Vis(string icfp)
+static void Vis(string icfp, bool exact)
 {
     try
     {
-        VisExpr(Expression.Parse(icfp), 0);
+        VisExpr(Expression.Parse(icfp), 0, exact);
     }
     catch (Exception e)
     {
@@ -259,10 +291,10 @@ static void Vis(string icfp)
     }
 }
 
-static void VisExpr(Expression expr, int indent)
+static void VisExpr(Expression expr, int indent, bool exact)
 {
     Console.Write(Indent(indent));
-    string? simple = SimpleExpr(expr);
+    string? simple = SimpleExpr(expr, exact);
 
     if (simple != null)
     {
@@ -270,7 +302,7 @@ static void VisExpr(Expression expr, int indent)
     }
     else if (expr is Unary u)
     {
-        string? simpleOp = SimpleExpr(u.Operand);
+        string? simpleOp = SimpleExpr(u.Operand, exact);
 
         if (simpleOp != null)
         {
@@ -279,13 +311,13 @@ static void VisExpr(Expression expr, int indent)
         else
         {
             Console.WriteLine("U" + u.Operator);
-            VisExpr(u.Operand, indent + 1);
+            VisExpr(u.Operand, indent + 1, exact);
         }
     }
     else if (expr is Binary bin)
     {
-        string? simpleLeft = SimpleExpr(bin.Left);
-        string? simpleRight = SimpleExpr(bin.Right);
+        string? simpleLeft = SimpleExpr(bin.Left, exact);
+        string? simpleRight = SimpleExpr(bin.Right, exact);
 
         if (simpleLeft != null && simpleRight != null)
         {
@@ -294,22 +326,30 @@ static void VisExpr(Expression expr, int indent)
         else
         {
             Console.WriteLine("B" + bin.Operator);
-            VisExpr(bin.Left, indent + 1);
-            VisExpr(bin.Right, indent + 1);
+            VisExpr(bin.Left, indent + 1, exact);
+            VisExpr(bin.Right, indent + 1, exact);
         }
     }
     else if (expr is If iif)
     {
-        Console.WriteLine("if");
-        VisExpr(iif.Condition, indent + 1);
-        VisExpr(iif.Then, indent + 1);
-        VisExpr(iif.Else, indent + 1);
+        Console.WriteLine(exact ? "?" : "if");
+        VisExpr(iif.Condition, indent + 1, exact);
+        VisExpr(iif.Then, indent + 1, exact);
+        VisExpr(iif.Else, indent + 1, exact);
     }
     else if (expr is Lambda lam)
     {
-        Console.WriteLine($"lambda(v{lam.VariableKey}) {{");
-        VisExpr(lam.Content, indent + 1);
-        Console.WriteLine(Indent(indent) + "}");
+        if (exact)
+        {
+            Console.WriteLine($"L{new Integer(lam.VariableKey).MachineValue}");
+            VisExpr(lam.Content, indent + 1, exact);
+        }
+        else
+        {
+            Console.WriteLine($"lambda(v{lam.VariableKey}) {{");
+            VisExpr(lam.Content, indent + 1, exact);
+            Console.WriteLine(Indent(indent) + "}");
+        }
     }
     else
     {
@@ -317,8 +357,20 @@ static void VisExpr(Expression expr, int indent)
     }
 }
 
-static string? SimpleExpr(Expression expr)
+static string? SimpleExpr(Expression expr, bool exact)
 {
+    if (exact)
+    {
+        if (exact && SimpleExpr(expr, false) != null)
+        {
+            return expr.ToICFP();
+        }
+        else
+        {
+            return null;
+        }
+    }
+
     if (expr is Bool b)
     {
         return b.AsBool().ToString();
