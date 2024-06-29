@@ -68,7 +68,7 @@ public static class TaskDownloader
 
         try
         {
-            reply = Expression.Parse(icfpReply).Eval([]).ToString() ?? "";
+            reply = Expression.Parse(icfpReply).Eval().ToString() ?? "";
         }
         catch (Exception e)
         {

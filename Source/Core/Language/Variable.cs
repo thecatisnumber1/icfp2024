@@ -17,7 +17,7 @@ public class Variable : Expression
         builder.Append($"v{Encodings.EncodeMachineInt(Key)}");
     }
 
-    public override Value Eval(Dictionary<long, Value> environment)
+    internal override Value Eval(Dictionary<long, Value> environment)
     {
         if (!environment.ContainsKey(Key)) {
             throw new EvaluationException($"Variable {Key} not found in environment");

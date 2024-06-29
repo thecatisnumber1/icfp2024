@@ -38,6 +38,20 @@ public class Closure : Value
 
     public override string ToString()
     {
-        return $"(closure {Lambda} {Environment})";
+        return $"(closure {Lambda} {string.Join(", ", Environment.Select(kvp => $"{kvp.Key}: {kvp.Value}"))})";
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is Closure other)
+        {
+            return Lambda.Equals(other.Lambda) && Environment.SequenceEqual(other.Environment);
+        }
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Lambda, HashEnvironment(Environment));
     }
 }

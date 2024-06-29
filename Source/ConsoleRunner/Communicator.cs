@@ -32,7 +32,7 @@ public static class Communicator
 
         if (statusCode != HttpStatusCode.OK)
         {
-            Console.WriteLine($"Got HTTP ${statusCode} for: {Expression.Parse(icfp).Eval([])}");
+            Console.WriteLine($"Got HTTP ${statusCode} for: {Expression.Parse(icfp).Eval()}");
             return null;
         }
 

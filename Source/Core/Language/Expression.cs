@@ -1,11 +1,33 @@
-﻿using Lib;
-using System.Text;
+﻿using System.Text;
 
 namespace Core;
 
 public abstract class Expression
 {
-    public abstract Value Eval(Dictionary<long, Value> environment);
+    protected static Dictionary<int, Value> _evalCache = new();
+
+    protected static int HashEnvironment(Dictionary<long, Value> environment)
+    {
+        int hash = 0;
+        foreach (var kvp in environment)
+        {
+            hash = HashCode.Combine(hash, kvp.Key, kvp.Value);
+        }
+        return hash;
+    }
+
+    protected int HashEval(Dictionary<long, Value> environment)
+    {
+        return HashCode.Combine(GetHashCode(), HashEnvironment(environment));
+    }
+
+    public Value Eval()
+    {
+        _evalCache = new();
+        return Eval(new());
+    }
+
+    internal abstract Value Eval(Dictionary<long, Value> environment);
 
     public string ToICFP()
     {

@@ -35,6 +35,11 @@ public static class Encodings
     {
         StringBuilder builder = new();
 
+        if (value == 0)
+        {
+            return $"{MIN_CHAR}";
+        }
+
         while (value > 0)
         {
             builder.Append((char)(MIN_CHAR + (char)(value % BASE)));

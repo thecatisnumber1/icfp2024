@@ -19,11 +19,18 @@ public class Unary : Expression
         Operand.AppendICFP(builder);
     }
 
-    public override Value Eval(Dictionary<long, Value> environment)
+    internal override Value Eval(Dictionary<long, Value> environment)
     {
+        int hash = HashEval(environment);
+        _evalCache.TryGetValue(hash, out var value);
+        if (value != null)
+        {
+            return value;
+        }
+
         var operand = Operand.Eval(environment);
 
-        return Operator switch
+        Value result = Operator switch
         {
             '-' => new Integer(-operand.AsInt()),
             '!' => Bool.Make(!operand.AsBool()),
@@ -31,6 +38,9 @@ public class Unary : Expression
             '$' => new Str(operand.AsMachineInt()),
             _ => throw new EvaluationException($"Invalid unary operator {Operator}"),
         };
+
+        _evalCache[hash] = result;
+        return result;
     }
 
     public override string ToString()

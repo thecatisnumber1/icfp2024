@@ -79,7 +79,7 @@ if (args.Length == 0)
             Console.WriteLine(icfpReply);
             Console.WriteLine("-----End raw reply-----");
             Console.WriteLine("-----Begin reply-----");
-            Console.WriteLine(Expression.Parse(icfpReply).Eval([]).ToString() ?? "");
+            Console.WriteLine(Expression.Parse(icfpReply).Eval().ToString() ?? "");
             Console.WriteLine("-----End reply-----");
         }
         else if (cmd == "send-raw")
@@ -95,7 +95,7 @@ if (args.Length == 0)
             Console.WriteLine(icfpReply);
             Console.WriteLine("-----End raw reply-----");
             Console.WriteLine("-----Begin reply-----");
-            Console.WriteLine(Expression.Parse(icfpReply).Eval([]).ToString() ?? "");
+            Console.WriteLine(Expression.Parse(icfpReply).Eval().ToString() ?? "");
             Console.WriteLine("-----End reply-----");
         }
         else if (cmd == "encode")
@@ -104,7 +104,7 @@ if (args.Length == 0)
         }
         else if (cmd == "decode")
         {
-            Console.WriteLine(Expression.Parse(cmdargs).Eval([]).ToString());
+            Console.WriteLine(Expression.Parse(cmdargs).Eval().ToString());
         }
         else if (cmd == "download")
         {

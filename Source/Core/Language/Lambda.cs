@@ -25,9 +25,18 @@ public class Lambda : Expression
         Content.AppendICFP(builder);
     }
 
-    public override Value Eval(Dictionary<long, Value> environment)
+    internal override Value Eval(Dictionary<long, Value> environment)
     {
-        return new Closure(this, environment);
+        int hash = HashEval(environment);
+        _evalCache.TryGetValue(hash, out var value);
+        if (value != null)
+        {
+            return value;
+        }
+
+        Value result = new Closure(this, environment);
+        _evalCache[hash] = result;
+        return result;
     }
 
     public override string ToString()

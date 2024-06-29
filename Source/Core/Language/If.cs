@@ -25,22 +25,38 @@ public class If : Expression
         Else.AppendICFP(builder);
     }
 
-    public override Value Eval(Dictionary<long, Value> environment)
+    internal override Value Eval(Dictionary<long, Value> environment)
     {
+        int hash = HashEval(environment);
+        _evalCache.TryGetValue(hash, out var value);
+        if (value != null)
+        {
+            return value;
+        }
+
         var condition = Condition.Eval(environment);
 
-        if (condition.AsBool())
-        {
-            return Then.Eval(environment);
-        }
-        else
-        {
-            return Else.Eval(environment);
-        }
+        Value result = condition.AsBool() ? Then.Eval(environment) : Else.Eval(environment);
+        _evalCache[hash] = result;
+        return result;
     }
 
     public override string ToString()
     {
         return $"(if {Condition} {Then} {Else})";
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is If other)
+        {
+            return Condition.Equals(other.Condition) && Then.Equals(other.Then) && Else.Equals(other.Else);
+        }
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Condition, Then, Else);
     }
 }

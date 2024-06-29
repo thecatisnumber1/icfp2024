@@ -15,12 +15,20 @@ public class Binary : Expression
         Operator = op;
     }
 
-    public override Value Eval(Dictionary<long, Value> environment)
+    internal override Value Eval(Dictionary<long, Value> environment)
     {
+        int hash = HashEval(environment);
+        _evalCache.TryGetValue(hash, out var value);
+        if (value != null)
+        {
+            return value;
+        }
+
+
         Value left = Left.Eval(environment);
         Value right = Right.Eval(environment);
 
-        return Operator switch
+        Value result = Operator switch
         {
             '+' => new Integer(left.AsInt() + right.AsInt()),
             '-' => new Integer(left.AsInt() - right.AsInt()),
@@ -38,6 +46,9 @@ public class Binary : Expression
             '$' => left.AsClosure().Apply(right),
             _ => throw new EvaluationException($"Invalid binary operator {Operator}"),
         };
+
+        _evalCache[hash] = result;
+        return result;
     }
 
     internal override void AppendICFP(StringBuilder builder)
