@@ -14,6 +14,11 @@ namespace Spaceship
             for (int i = 0; i < allProblems.Count; i++)
             {
                 var problem = allProblems[i];
+                if (!problem.Name.Contains("22"))
+                {
+                    continue;
+                }
+
                 NearestNeighborSolver solver = new NearestNeighborSolver();
                 List<int> solution = solver.Solve(problem);
                 WriteSolutionToFile(problem, solution, $"{problem.Name}.json");

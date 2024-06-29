@@ -21,7 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreTests", "CoreTests\Core
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spaceship", "Spaceship\Spaceship.csproj", "{9E9E3985-5E50-434C-88F1-F6C601DD866A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambdaman", "Lambdaman\Lambdaman.csproj", "{F2233698-7045-4D58-B6B6-FA4832CF9B7A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lambdaman", "Lambdaman\Lambdaman.csproj", "{F2233698-7045-4D58-B6B6-FA4832CF9B7A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThreeDimensional", "ThreeDimensional\ThreeDimensional.csproj", "{ABC2C5C6-9E60-41FA-8008-941C3ABA41C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,10 @@ Global
 		{F2233698-7045-4D58-B6B6-FA4832CF9B7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2233698-7045-4D58-B6B6-FA4832CF9B7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2233698-7045-4D58-B6B6-FA4832CF9B7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABC2C5C6-9E60-41FA-8008-941C3ABA41C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABC2C5C6-9E60-41FA-8008-941C3ABA41C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABC2C5C6-9E60-41FA-8008-941C3ABA41C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABC2C5C6-9E60-41FA-8008-941C3ABA41C7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
