@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using ConsoleRunner;
 using Core;
+using Lib;
 using Runner;
 
 if (args.Length == 0)
@@ -93,9 +94,32 @@ if (args.Length == 0)
             {
                 foreach (string token in msg.Split(' '))
                 {
-                    if (token.StartsWith("S"))
+                    if (token.StartsWith('S') && token.Length > 1)
                     {
                         Console.WriteLine(new Str(token).ToString());
+                    }
+                }
+            }
+        }
+        else if (line.StartsWith("strings-file "))
+        {
+            string filename = line[12..^0].Trim();
+
+            if (filename != "")
+            {
+                var file = Finder.GIT.GetRelativeFile(filename);
+
+                if (!file.Exists)
+                {
+                    Console.WriteLine("No such file: " + filename);
+                    continue;
+                }
+
+                foreach (string token in File.ReadAllText(file.FullName).Split(' '))
+                {
+                    if (token.StartsWith('S') && token.Length > 1)
+                    {
+                        Console.WriteLine(new Str(token[1..^0]).ToString());
                     }
                 }
             }
@@ -114,6 +138,7 @@ if (args.Length == 0)
                 decode <icfp>        Decode an ICFP string
                 download <taskname>  Downloads a task and its problems
                 strings <icfp>       Outputs all strings in the ICFP
+                strings-file <file>  Same as strings but loads ICFP from a file
                 exit                 Exit
             """);
         }
