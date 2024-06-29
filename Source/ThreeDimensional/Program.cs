@@ -7,7 +7,7 @@ namespace ThreeDimensional
     {
         static void Main(string[] args)
         {
-            string problemName = "3d2";
+            string problemName = "3d4";
             string s = ReadProblem(problemName);
 
             RegularizeFile("*.3d");
@@ -41,7 +41,7 @@ namespace ThreeDimensional
             string s = File.ReadAllText(
                 Finder.SOLUTION
                 .FindDir("ThreeDimensional")
-                .GetDirectories("Problems")
+                .GetDirectories("Programs")
                 .FirstOrDefault()
                 .GetFiles($"{problemName}.3d")
                 .FirstOrDefault()
