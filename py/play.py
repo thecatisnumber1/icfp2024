@@ -5,7 +5,6 @@ import requests
 # Define the custom order for the encoding
 custom_order = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`|~ \n"
 int_chars = ''.join((chr(i) for i in range(ord('!'), ord('!') + 94)))
-print(int_chars)
 
 # Create a dictionary to map the custom order to standard ASCII values
 encoding_map = {char: chr(i + 33) for i, char in enumerate(custom_order)}
@@ -372,7 +371,6 @@ def evaluate_program(program):
 
     print('Program result: ', program)
     print("In steps: ", steps)
-    print()
 
     return program
 
@@ -388,7 +386,11 @@ def main():
 
         # Communicate with the server and get the response
 
-        encoded_text = encode_string(program)
+        try:
+            encoded_text = encode_string(program)
+        except:
+            encoded_text = 'I' + int_to_base94(program)
+
         print("Sending: ", encoded_text)
         response = communicate_with_server(encoded_text)
         print()
