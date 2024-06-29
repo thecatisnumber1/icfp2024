@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Formats.Tar;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -18,9 +19,9 @@ public static class TaskDownloader
     public static void Download(string taskName)
     {
         var tasksDir = Finder.GIT.FindRelativeDir(TASKS_DIR);
-        string taskFile = Path.Combine(tasksDir.FullName, taskName + ".txt");
-        
-        if (!DownloadSingle(taskName, taskFile))
+        string? taskText;
+
+        if ((taskText = DownloadSingle(taskName, tasksDir.FullName)) == null)
         {
             return;
         }
@@ -33,18 +34,16 @@ public static class TaskDownloader
         }
 
         Regex regex = new(@"^\* \[(" + taskName + @"\d+)\]");
-        string task = File.ReadAllText(taskFile);
 
-        foreach (string line in task.Replace("\r", "").Split("\n"))
+        foreach (string line in taskText.Split("\r\n"))
         {
             var match = regex.Match(line);
 
             if (match.Success)
             {
                 string problem = match.Groups[1].Value;
-                string problemFile = Path.Combine(taskProblemsDir.FullName, problem + ".txt");
 
-                if (!DownloadSingle(problem, problemFile))
+                if (DownloadSingle(problem, taskProblemsDir.FullName) == null)
                 {
                     return;
                 }
@@ -52,9 +51,19 @@ public static class TaskDownloader
         }
     }
 
-    private static bool DownloadSingle(string filename, string filepath)
+    private static string? DownloadSingle(string filename, string dirPath)
     {
-        string icfpReply = Communicator.Send(Str.Make($"get {filename}").ToICFP());
+        string? icfpReply = Communicator.Send(Str.Make($"get {filename}").ToICFP());
+        
+        if (icfpReply == null)
+        {
+            return null;
+        }
+
+        string rawFilename = filename + "-raw.txt";
+        File.WriteAllText(Path.Combine(dirPath, rawFilename), icfpReply);
+        Console.WriteLine($"Downloaded to {rawFilename}");
+
         string reply;
 
         try
@@ -63,13 +72,17 @@ public static class TaskDownloader
         }
         catch (Exception e)
         {
+            Console.WriteLine(icfpReply);
             Console.WriteLine($"Exception while parsing response for: get {filename}");
             Console.WriteLine(e);
-            return false;
+            return null;
         }
 
-        File.WriteAllText(filepath, reply);
-        Console.WriteLine($"Downloaded {filename}.txt");
-        return true;
+        reply = reply.Replace("\r", "").Replace("\n", "\r\n");
+
+        string decodedFilename = filename + "-decoded.txt";
+        File.WriteAllText(Path.Combine(dirPath, decodedFilename), reply);
+        Console.WriteLine($"Decoded to {decodedFilename}");
+        return reply;
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace Lib;
@@ -37,13 +38,13 @@ public static class RestConnector
         return default;
     }
 
-    public static string PostFile(string url, string content)
+    public static (string, HttpStatusCode) PostFile(string url, string content)
     {
         using var client = new HttpClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
         var result = client.PostAsync(url, new StringContent(content)).Result;
 
-        return result.Content.ReadAsStringAsync().Result;
+        return (result.Content.ReadAsStringAsync().Result, result.StatusCode);
     }
 }

@@ -22,7 +22,13 @@ if (args.Length == 0)
             {
                 string icfp = Unparse(msg);
                 Console.WriteLine("Sending: " + icfp);
-                string icfpReply = Communicator.Send(icfp);
+                string? icfpReply = Communicator.Send(icfp);
+
+                if (icfpReply == null)
+                {
+                    continue;
+                }
+
                 Console.WriteLine("-----Begin raw reply-----");
                 Console.WriteLine(icfpReply);
                 Console.WriteLine("-----End raw reply-----");
@@ -37,7 +43,13 @@ if (args.Length == 0)
 
             if (msg != "")
             {
-                string icfpReply = Communicator.Send(msg);
+                string? icfpReply = Communicator.Send(msg);
+
+                if (icfpReply == null)
+                {
+                    continue;
+                }
+
                 Console.WriteLine("-----Begin raw reply-----");
                 Console.WriteLine(icfpReply);
                 Console.WriteLine("-----End raw reply-----");
