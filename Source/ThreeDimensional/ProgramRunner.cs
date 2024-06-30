@@ -7,7 +7,7 @@ namespace ThreeDimensional
 {
     public class ProgramRunner
     {
-        private List<ProgramGrid> _history;
+        public List<ProgramGrid> _history;
         private int _currentTick;
         private int? _resultValue;
         private const int MaxTicks = 1_000_000;

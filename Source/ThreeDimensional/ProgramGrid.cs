@@ -198,6 +198,7 @@ namespace ThreeDimensional
         {
             var sb = new StringBuilder();
 
+            List<(int row, int col, int val)> cellValues = new List<(int row, int col, int val)>();
             if (Grid == null || Grid.Count == 0)
             {
                 return "Empty Grid";
@@ -226,7 +227,16 @@ namespace ThreeDimensional
                 {
                     if (x < Grid[y].Count)
                     {
-                        sb.Append($"{Grid[y][x],3}");
+                        string cell = $"{Grid[y][x],3}";
+                        if (cell.Length > 3)
+                        {
+                            sb.Append("~~~");
+                            cellValues.Add((x, y, Grid[y][x].IntegerValue.Value));
+                        }
+                        else
+                        {
+                            sb.Append(cell);
+                        }
                     }
                     else
                     {
@@ -235,6 +245,12 @@ namespace ThreeDimensional
                 }
                 sb.AppendLine();
             }
+
+            foreach (var (row, col, val) in cellValues)
+            {
+                sb.AppendLine($"Cell at ({col}, {row}) has value {val}");
+            }
+
             return sb.ToString();
         }
 

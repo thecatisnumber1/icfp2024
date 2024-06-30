@@ -7,18 +7,17 @@ namespace ThreeDimensional
     {
         static void Main(string[] args)
         {
-            string problemName = "3d9";
+            string problemName = "3d7";
             string s = ReadProblem(problemName);
 
-            RegularizeFile($"{problemName}.3d");
-            //RunWithVisualization(s, 22);
+            //RegularizeFile($"{problemName}.3d");
+            RunWithVisualization(s, 122222);
             
-            ProgramGrid submission = ProgramGrid.Parse(s);
-            string submissionString = $"solve {problemName}\n" + submission.ToMinimalString();
-            var result = SolutionSubmitter.submitSoluton("3d", problemName, -1, "S" + Encodings.EncodeMachineString(submissionString), new Dictionary<string, string>());
-            Console.WriteLine($"score = {result.score}");
+            //ProgramGrid submission = ProgramGrid.Parse(s);
+            //string submissionString = $"solve {problemName}\n" + submission.ToMinimalString();
+            //var result = SolutionSubmitter.submitSoluton("3d", problemName, -1, "S" + Encodings.EncodeMachineString(submissionString), new Dictionary<string, string>());
+            //Console.WriteLine($"score = {result.score}");
         }
-
 
         static void RunWithVisualization(string s, int? a = null, int? b = null)
         {
