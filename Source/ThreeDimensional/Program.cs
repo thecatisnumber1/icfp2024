@@ -11,12 +11,12 @@ namespace ThreeDimensional
             string s = ReadProblem(problemName);
 
             RegularizeFile($"{problemName}.3d");
-            RunWithVisualization(s, -1, -1);
+            //RunWithVisualization(s, 22);
             
-            //ProgramGrid submission = ProgramGrid.Parse(s);
-            //string submissionString = $"solve {problemName}\n" + submission.ToMinimalString();
-            //var result = SolutionSubmitter.submitSoluton("3d", problemName, -1, "S" + Encodings.EncodeMachineString(submissionString), new Dictionary<string, string>());
-            //Console.WriteLine($"score = {result.score}");
+            ProgramGrid submission = ProgramGrid.Parse(s);
+            string submissionString = $"solve {problemName}\n" + submission.ToMinimalString();
+            var result = SolutionSubmitter.submitSoluton("3d", problemName, -1, "S" + Encodings.EncodeMachineString(submissionString), new Dictionary<string, string>());
+            Console.WriteLine($"score = {result.score}");
         }
 
 
