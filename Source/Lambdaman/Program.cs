@@ -28,6 +28,13 @@ namespace LambdaMan
 
             foreach (var problem in problems)
             {
+                int solverN = int.Parse(problem.Name.Replace("lambdaman", ""));
+
+                if (solverN != 20 || solverN <= 11 || solverN == 13 || solverN == 14 || solverN == 17)
+                {
+                    continue;
+                }
+
                 // Solve
                 var expr = solver(problem.Duplicate());
 
@@ -66,8 +73,10 @@ namespace LambdaMan
             }
         }
 
-        static void AnimateSolution(LambdaManGrid grid, string solution)
+        public static void AnimateSolution(LambdaManGrid grid, string solution)
         {
+            Console.WindowWidth = grid.Width;
+            Console.WindowHeight = Console.LargestWindowHeight;
             grid.Display();
             Console.CursorVisible = false;
 
@@ -105,7 +114,7 @@ namespace LambdaMan
                     Console.SetCursorPosition(currentPos.X, currentPos.Y);
 
                     grid.SetCell(currentPos.X, currentPos.Y, 'L');
-                    //Thread.Sleep(10);
+                    Thread.Sleep(500);
 
                     // Clear the previous Lambda-Man position
                     grid.SetCell(currentPos.X, currentPos.Y, ' ');

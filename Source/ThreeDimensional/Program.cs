@@ -13,8 +13,6 @@ namespace ThreeDimensional
             //RegularizeFile($"{problemName}.3d");
             RunWithVisualization(s, 6);
 
-            //Test3d8(s);
-
             //ProgramGrid submission = ProgramGrid.Parse(s);
             //string submissionString = $"solve {problemName}\n" + submission.ToMinimalString();
             //var result = SolutionSubmitter.submitSoluton("3d", problemName, -1, "S" + Encodings.EncodeMachineString(submissionString), new Dictionary<string, string>());

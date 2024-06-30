@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 
 namespace ThreeDimensional
@@ -8,10 +9,10 @@ namespace ThreeDimensional
     public class ProgramRunner
     {
         public List<ProgramGrid> _history;
-        private int _currentTick;
-        private int? _resultValue;
+        private BigInteger _currentTick;
+        private BigInteger? _resultValue;
         private const int MaxTicks = 1_000_000;
-        private int _timeWarpTick = -1;
+        private BigInteger _timeWarpTick = -1;
         private bool[,] _written;
         private bool[,] _timeWarpWritten;
 
@@ -28,7 +29,7 @@ namespace ThreeDimensional
                 return false;
             }
 
-            var currentGrid = _history[_currentTick - 1];
+            var currentGrid = _history[(int)_currentTick - 1];
             _written = new bool[currentGrid.Grid.Count, currentGrid.Grid[0].Count];
             _timeWarpWritten = new bool[currentGrid.Grid.Count, currentGrid.Grid[0].Count];
             var nextGrid = ExecuteTick(currentGrid);
@@ -36,7 +37,7 @@ namespace ThreeDimensional
             if (_timeWarpTick != -1)
             {
                 // Truncate history and recalculate from the time warp point
-                _history = _history.Take(_timeWarpTick).ToList();
+                _history = _history.Take((int)_timeWarpTick).ToList();
                 _currentTick = _timeWarpTick;
                 _timeWarpTick = -1;
             }
@@ -60,7 +61,7 @@ namespace ThreeDimensional
             while (Step()) { }
         }
 
-        public int? GetResult()
+        public BigInteger? GetResult()
         {
             return _resultValue;
         }
@@ -78,32 +79,6 @@ namespace ThreeDimensional
             sb.AppendLine($"Current Grid State:");
             sb.AppendLine(_history.Last().ToString());
             return sb.ToString();
-        }
-
-        public int GetSpacetimeVolume()
-        {
-            int minX = int.MaxValue, maxX = int.MinValue;
-            int minY = int.MaxValue, maxY = int.MinValue;
-            int maxT = _currentTick;
-
-            foreach (var grid in _history)
-            {
-                for (int y = 0; y < grid.Grid.Count; y++)
-                {
-                    for (int x = 0; x < grid.Grid[y].Count; x++)
-                    {
-                        if (grid.Grid[y][x].Type != CellType.Empty)
-                        {
-                            minX = Math.Min(minX, x);
-                            maxX = Math.Max(maxX, x);
-                            minY = Math.Min(minY, y);
-                            maxY = Math.Max(maxY, y);
-                        }
-                    }
-                }
-            }
-
-            return (maxX - minX + 1) * (maxY - minY + 1) * maxT;
         }
 
         private ProgramGrid ExecuteTick(ProgramGrid currentGrid)
@@ -184,8 +159,8 @@ namespace ThreeDimensional
                     return;
                 }
 
-                int left = leftCell.IntegerValue.Value;
-                int top = topCell.IntegerValue.Value;
+                BigInteger left = leftCell.IntegerValue.Value;
+                BigInteger top = topCell.IntegerValue.Value;
                 Cell result = new Cell { Type = CellType.Integer };
                 switch (operation)
                 {
@@ -361,9 +336,9 @@ namespace ThreeDimensional
             }
         }
 
-        private void TimeWarp(ProgramGrid grid, int x, int y)
+        private void TimeWarp(ProgramGrid grid, BigInteger x, BigInteger y)
         {
-            if (TryGetTimeWarpOperands(grid, x, y, out int dx, out int dy, out int dt, out Cell v))
+            if (TryGetTimeWarpOperands(grid, x, y, out BigInteger dx, out BigInteger dy, out BigInteger dt, out Cell v))
             {
                 TimeWarp(dt, x - dx, y - dy, v);
             }
@@ -376,11 +351,11 @@ namespace ThreeDimensional
             return hasLeft && hasTop;
         }
 
-        private bool TryGetAdjacentValue(ProgramGrid grid, int x, int y, out Cell value)
+        private bool TryGetAdjacentValue(ProgramGrid grid, BigInteger x, BigInteger y, out Cell value)
         {
-            if (y >= 0 && y < grid.Grid.Count && x >= 0 && x < grid.Grid[y].Count)
+            if (y >= 0 && y < grid.Grid.Count && x >= 0 && x < grid.Grid[(int)y].Count)
             {
-                var cell = grid.Grid[y][x];
+                var cell = grid.Grid[(int)y][(int)x];
                 if (cell.Type != CellType.Empty)
                 {
                     value = cell;
@@ -416,7 +391,7 @@ namespace ThreeDimensional
             }
         }
 
-        private bool TryGetTimeWarpOperands(ProgramGrid grid, int x, int y, out int dx, out int dy, out int dt, out Cell v)
+        private bool TryGetTimeWarpOperands(ProgramGrid grid, BigInteger x, BigInteger y, out BigInteger dx, out BigInteger dy, out BigInteger dt, out Cell v)
         {
             dx = dy = dt = 0;
             v = new Cell { Type = CellType.Empty };
@@ -424,7 +399,7 @@ namespace ThreeDimensional
             bool hasDx = TryGetAdjacentValue(grid, x - 1, y, out Cell dxCell);
             bool hasDy = TryGetAdjacentValue(grid, x + 1, y, out Cell dyCell);
             bool hasDt = TryGetAdjacentValue(grid, x, y + 1, out Cell dtCell);
-            bool hasV = y > 0 && grid.Grid[y - 1][x].Type != CellType.Empty;
+            bool hasV = y > 0 && grid.Grid[(int)y - 1][(int)x].Type != CellType.Empty;
 
             if (dxCell.Type != CellType.Integer || dyCell.Type != CellType.Integer || dtCell.Type != CellType.Integer)
             {
@@ -437,21 +412,21 @@ namespace ThreeDimensional
 
             if (hasV)
             {
-                v = grid.Grid[y - 1][x].Clone();
+                v = grid.Grid[(int)y - 1][(int)x].Clone();
                 //grid.Grid[y - 1][x] = new Cell { Type = CellType.Empty }; I think this is dumb and not needed, but keeping in case
             }
 
             return hasDx && hasDy && hasDt && hasV;
         }
 
-        public void TimeWarp(int dt, int x, int y, Cell newValue)
+        public void TimeWarp(BigInteger dt, BigInteger x, BigInteger y, Cell newValue)
         {
             if (dt <= 0 || dt >= _currentTick)
             {
                 throw new ArgumentException("Invalid time warp delta");
             }
 
-            int targetTick = _currentTick - dt;
+            BigInteger targetTick = _currentTick - dt;
 
             if (_timeWarpTick != -1 && _timeWarpTick != targetTick)
             {
@@ -459,10 +434,10 @@ namespace ThreeDimensional
             }
 
             _timeWarpTick = targetTick;
-            var targetGrid = _history[targetTick - 1];
+            var targetGrid = _history[(int)targetTick - 1];
 
-            int targetX = x;
-            int targetY = y;
+            int targetX = (int)x;
+            int targetY = (int)y;
 
             if (targetY < 0 || targetY >= targetGrid.Grid.Count ||
                 targetX < 0 || targetX >= targetGrid.Grid[targetY].Count)

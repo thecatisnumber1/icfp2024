@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Numerics;
+
 
 namespace ThreeDimensional
 {
@@ -12,7 +14,7 @@ namespace ThreeDimensional
     public class Cell
     {
         public CellType Type { get; set; }
-        public int? IntegerValue { get; set; }
+        public BigInteger? IntegerValue { get; set; }
         public char? OperatorValue { get; set; }
 
         public override string ToString()
