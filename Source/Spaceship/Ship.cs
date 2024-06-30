@@ -5,6 +5,8 @@ namespace Spaceship;
 
 public class Ship
 {
+
+
     public Point Pos { get; private set; }
     /// <summary>
     /// This is double-precision to represent an integer velocity.
@@ -25,20 +27,6 @@ public class Ship
 
     public void Move(int command)
     {
-        var (x, y) = Pos;
-
-        // Update velocity based on command
-        if (new[] { 7, 8, 9 }.Contains(command))
-            y++;
-        else if (new[] { 1, 2, 3 }.Contains(command))
-            y--;
-
-        if (new[] { 1, 4, 7 }.Contains(command))
-            x--;
-        else if (new[] { 3, 6, 9 }.Contains(command))
-            x++;
-
-        // Update position
-        Pos = new Point(x, y);
+        Pos += Command.GetVec(command);
     }
 }
