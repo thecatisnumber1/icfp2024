@@ -37,7 +37,7 @@ namespace Spaceship
 
             Console.WriteLine($"Trimmed path length: {trimmedPath.Count}");
 
-            return fullPath;
+            return trimmedPath;
         }
 
         private static List<int> TrimFullStops(List<int> solution)
