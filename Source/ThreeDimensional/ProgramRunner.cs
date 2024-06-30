@@ -177,18 +177,23 @@ namespace ThreeDimensional
 
         private void PerformArithmetic(ProgramGrid currentGrid, ProgramGrid nextGrid, int x, int y, char operation)
         {
-            if (TryGetOperands(currentGrid, x, y, out int left, out int top))
+            if (TryGetOperands(currentGrid, x, y, out Cell leftCell, out Cell topCell))
             {
-                int result = 0;
+                if (leftCell.Type != CellType.Integer || topCell.Type != CellType.Integer)
+                {
+                    return;
+                }
+
+                int left = leftCell.IntegerValue.Value;
+                int top = topCell.IntegerValue.Value;
+                Cell result = new Cell { Type = CellType.Integer };
                 switch (operation)
                 {
-                    case '+': result = left + top; break;
-                    case '-': 
-                        result = left - top; 
-                        break;
-                    case '*': result = left * top; break;
-                    case '/': result = left / top; break;
-                    case '%': result = left % top; break;
+                    case '+': result.IntegerValue = left + top; break;
+                    case '-': result.IntegerValue = left - top; break;
+                    case '*': result.IntegerValue = left * top; break;
+                    case '/': result.IntegerValue = left / top; break;
+                    case '%': result.IntegerValue = left % top; break;
                 }
 
                 if (!_written[y, x -1])
@@ -322,7 +327,7 @@ namespace ThreeDimensional
 
         private void Equal(ProgramGrid currentGrid, ProgramGrid nextGrid, int x, int y)
         {
-            if (TryGetOperands(currentGrid, x, y, out int left, out int top) && left == top)
+            if (TryGetOperands(currentGrid, x, y, out Cell left, out Cell top) && left == top)
             {
                 if (!_written[y, x - 1])
                 {
@@ -340,7 +345,7 @@ namespace ThreeDimensional
 
         private void NotEqual(ProgramGrid currentGrid, ProgramGrid nextGrid, int x, int y)
         {
-            if (TryGetOperands(currentGrid, x, y, out int left, out int top) && left != top)
+            if (TryGetOperands(currentGrid, x, y, out Cell left, out Cell top) && left != top)
             {
                 if (!_written[y, x - 1])
                 {
@@ -364,30 +369,30 @@ namespace ThreeDimensional
             }
         }
 
-        private bool TryGetOperands(ProgramGrid grid, int x, int y, out int left, out int top)
+        private bool TryGetOperands(ProgramGrid grid, int x, int y, out Cell left, out Cell top)
         {
-            left = top = 0;
             bool hasLeft = TryGetAdjacentValue(grid, x - 1, y, out left);
             bool hasTop = TryGetAdjacentValue(grid, x, y - 1, out top);
             return hasLeft && hasTop;
         }
 
-        private bool TryGetAdjacentValue(ProgramGrid grid, int x, int y, out int value)
+        private bool TryGetAdjacentValue(ProgramGrid grid, int x, int y, out Cell value)
         {
-            value = 0;
             if (y >= 0 && y < grid.Grid.Count && x >= 0 && x < grid.Grid[y].Count)
             {
                 var cell = grid.Grid[y][x];
-                if (cell.Type == CellType.Integer)
+                if (cell.Type != CellType.Empty)
                 {
-                    value = cell.IntegerValue.Value;
+                    value = cell;
                     return true;
                 }
             }
+
+            value = new Cell { Type = CellType.Empty };
             return false;
         }
 
-        private void SetResult(ProgramGrid grid, int x, int y, int result)
+        private void SetResult(ProgramGrid grid, int x, int y, Cell result)
         {
             if (_written[y, x])
             {
@@ -397,12 +402,17 @@ namespace ThreeDimensional
             _written[y, x] = true;
             if (grid.Grid[y][x].OperatorValue == 'S')
             {
-                _resultValue = result;
+                if (result.Type != CellType.Integer)
+                {
+                    throw new Exception("Writing non-integer value to S cell");
+                }
+
+                _resultValue = result.IntegerValue;
             }
 
             if (x < grid.Grid[y].Count)
             {
-                grid.Grid[y][x] = new Cell { Type = CellType.Integer, IntegerValue = result };
+                grid.Grid[y][x] = result.Clone();
             }
         }
 
@@ -411,10 +421,19 @@ namespace ThreeDimensional
             dx = dy = dt = 0;
             v = new Cell { Type = CellType.Empty };
 
-            bool hasDx = TryGetAdjacentValue(grid, x - 1, y, out dx);
-            bool hasDy = TryGetAdjacentValue(grid, x + 1, y, out dy);
-            bool hasDt = TryGetAdjacentValue(grid, x, y + 1, out dt);
+            bool hasDx = TryGetAdjacentValue(grid, x - 1, y, out Cell dxCell);
+            bool hasDy = TryGetAdjacentValue(grid, x + 1, y, out Cell dyCell);
+            bool hasDt = TryGetAdjacentValue(grid, x, y + 1, out Cell dtCell);
             bool hasV = y > 0 && grid.Grid[y - 1][x].Type != CellType.Empty;
+
+            if (dxCell.Type != CellType.Integer || dyCell.Type != CellType.Integer || dtCell.Type != CellType.Integer)
+            {
+                return false;
+            }
+
+            dt = dtCell.IntegerValue.Value;
+            dx = dxCell.IntegerValue.Value;
+            dy = dyCell.IntegerValue.Value;
 
             if (hasV)
             {

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ThreeDimensional
 {
@@ -44,6 +40,62 @@ namespace ThreeDimensional
             };
 
             return clone;
+        }
+
+        public static bool operator ==(Cell left, Cell right)
+        {
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+            {
+                return false;
+            }
+
+            if (left.Type != right.Type)
+            {
+                return false;
+            }
+
+            switch (left.Type)
+            {
+                case CellType.Empty:
+                    return true;
+                case CellType.Integer:
+                    return left.IntegerValue == right.IntegerValue;
+                case CellType.Operator:
+                    return left.OperatorValue == right.OperatorValue;
+                default:
+                    return false;
+            }
+        }
+
+        public static bool operator !=(Cell left, Cell right)
+        {
+            return !(left == right);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Cell cell)
+            {
+                return this == cell;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 23 + Type.GetHashCode();
+                hash = hash * 23 + (IntegerValue?.GetHashCode() ?? 0);
+                hash = hash * 23 + (OperatorValue?.GetHashCode() ?? 0);
+                return hash;
+            }
         }
     }
 }
