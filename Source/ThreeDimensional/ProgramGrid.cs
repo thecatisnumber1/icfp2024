@@ -39,7 +39,7 @@ namespace ThreeDimensional
             for (int y = 0; y < lines.Length; y++)
             {
                 var row = new List<Cell>();
-                var tokens = lines[y].Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                var tokens = lines[y].Trim().Split(new[] { ' ', '	' }, StringSplitOptions.RemoveEmptyEntries);
                 for (int x = 0; x < tokens.Length; x++)
                 {
                     var (cell, symbol) = programGrid.ParseCell(tokens[x].Trim(), aValue, bValue);

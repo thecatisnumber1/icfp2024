@@ -123,16 +123,20 @@ namespace ThreeDimensional
                         switch (cell.OperatorValue)
                         {
                             case '<':
-                                operations.Add(() => MoveLeft(currentGrid, nextGrid, capturedX, capturedY));
+                                if (currentGrid.Grid[y][x + 1].Type != CellType.Empty)
+                                    operations.Add(() => MoveLeft(currentGrid, nextGrid, capturedX, capturedY));
                                 break;
                             case '>':
-                                operations.Add(() => MoveRight(currentGrid, nextGrid, capturedX, capturedY));
+                                if (currentGrid.Grid[y][x - 1].Type != CellType.Empty)
+                                    operations.Add(() => MoveRight(currentGrid, nextGrid, capturedX, capturedY));
                                 break;
                             case '^':
-                                operations.Add(() => MoveUp(currentGrid, nextGrid, capturedX, capturedY));
+                                if (currentGrid.Grid[y + 1][x].Type != CellType.Empty)
+                                    operations.Add(() => MoveUp(currentGrid, nextGrid, capturedX, capturedY));
                                 break;
                             case 'v':
-                                operations.Add(() => MoveDown(currentGrid, nextGrid, capturedX, capturedY));
+                                if (currentGrid.Grid[y - 1][x].Type != CellType.Empty)
+                                    operations.Add(() => MoveDown(currentGrid, nextGrid, capturedX, capturedY));
                                 break;
                             case '+':
                             case '-':
