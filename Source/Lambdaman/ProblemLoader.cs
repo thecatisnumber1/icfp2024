@@ -6,24 +6,31 @@ using System.Linq;
 using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
-namespace LambdaMan
+namespace LambdaMan;
+
+public class ProblemLoader
 {
-    public class ProblemLoader
+    public static List<LambdaManGrid> LoadProblems()
     {
-        public static List<LambdaManGrid> LoadProblems()
+        var dir = Finder.GIT.FindDir("Tasks");
+        dir = dir.GetDirectories("lambdaman").FirstOrDefault();
+        var problems = new List<LambdaManGrid>();
+
+        foreach (var file in dir.GetFiles("*decoded*"))
         {
-            var dir = Finder.GIT.FindDir("Tasks");
-            dir = dir.GetDirectories("lambdaman").FirstOrDefault();
-            var problems = new List<LambdaManGrid>();
-
-            foreach (var file in dir.GetFiles("*decoded*"))
-            {
-                var name = Path.GetFileNameWithoutExtension(file.Name);
-                problems.Add(new LambdaManGrid(name.Replace("-decoded", null), new List<string>(File.ReadAllLines(file.FullName))));
-            }
-
-            return problems;
+            problems.Add(LoadProblem(file));
         }
+
+        return problems;
+    }
+
+    public static LambdaManGrid LoadProblem(FileInfo file)
+    {
+        string name = file.Name.Replace("-decoded.txt", null);
+        List<string> lines = new(File.ReadAllLines(file.FullName));
+
+        return new (name, lines);
     }
 }
