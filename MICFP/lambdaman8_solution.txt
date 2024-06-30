@@ -1,21 +1,21 @@
 B$
   B$
-    Y
-    L"
-      L#
+    L! B$ v! v!
+    Lf
+      Li
         ?
-          B< v# I!
+          B< vi I!
           S
           B.
             B$
-              v"
-              B- v# I"
+              B$ vf vf
+              B- vi I"
             // Take first character
             BT
               I"
               // Drop first ((i / 98) % 4) chars from "DLUR"
               BD
-                B% B/ v# I"% I%
+                B% B/ vi I"% I%
                 S>FOL
   // 9603
   I")0

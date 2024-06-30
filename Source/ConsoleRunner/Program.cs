@@ -364,7 +364,7 @@ static void VisExpr(Expression expr, int indent, bool exact)
     {
         string? simpleBin = SimpleBinOp(bin);
 
-        if (simpleBin != null)
+        if (!exact && simpleBin != null)
         {
             Console.WriteLine(simpleBin);
         }

@@ -1,18 +1,18 @@
 B$
   B$
-    Y
-    L"
-      L#
+    L! B$ v! v!
+    Lf
+      Li
         ?
-          B= v# I!
+          B= vi I!
           SL
           B.
             B$
-              v"
-              B- v# I"
+              B$ vf vf
+              B- vi I"
             ?
               // if (49 == (i % 50))
-              B= IR B% v# IS
+              B= IR B% vi IS
               // then "D"
               S>
               // else
@@ -20,12 +20,13 @@ B$
               BT
                 I"
                 BD
-                  B% B/ v# IS I#
+                  B% B/ vi IS I#
                   SLF
   // 2498
   I;W
-  
-  
+
+
+
   
 // B$ B$ L" B$ L# B$ v" B$ v# v# L# B$ v" B$ v# v# L" L# ? B= v# I! SL B. B$ v" B- v# I" ? B= IR B% v# IS S> ? B= I! B% B/ v# IS I# SL SF I;Y
 
