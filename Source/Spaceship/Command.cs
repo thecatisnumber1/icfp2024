@@ -22,6 +22,11 @@ public static class Command
         return Velocities[command - 1];
     }
 
+    public static int GetCommand(Vec vec)
+    {
+        return Array.FindIndex(Velocities, v => v == vec) + 1;
+    }
+
     /// <summary>
     /// In order, 0-indexed
     /// </summary>

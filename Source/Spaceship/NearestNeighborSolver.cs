@@ -1,4 +1,5 @@
-﻿using Point = Lib.PointInt;
+﻿using Lib;
+using Point = Lib.PointInt;
 
 namespace Spaceship
 {
@@ -29,7 +30,53 @@ namespace Spaceship
             }
 
             Console.WriteLine($"Final path length: {fullPath.Count}");
+
+            Console.WriteLine("But Wait! There's more! Trimming full stops...");
+
+            List<int> trimmedPath = TrimFullStops(fullPath);
+
+            Console.WriteLine($"Trimmed path length: {trimmedPath.Count}");
+
             return fullPath;
+        }
+
+        private static List<int> TrimFullStops(List<int> solution)
+        {
+            List<int> trimSolution = [];
+            Ship ship = new();
+            Vec prevPrevV = Vec.ZERO;
+            Vec prevV = Vec.ZERO;
+
+            for (int i = 0; i < solution.Count; i++)
+            {
+                prevPrevV = prevV;
+                prevV = ship.Velocity;
+
+                ship.Move(solution[i]);
+                trimSolution.Add(solution[i]);
+
+                // If we've done a full stop
+                if (i != 0 && prevV == Vec.ZERO)
+                {
+                    // We might be able to trim the full stop by applying the diff as one step
+                    // instead of performing the two stop/start steps
+                    var diff = ship.Velocity - prevPrevV;
+                    var diffCommand = Command.GetCommand(diff);
+
+                    //Console.WriteLine($"Diff: {diff} -> {diffCommand}".PadLeft(50));
+
+                    if (diffCommand > 0)
+                    {
+                        trimSolution.RemoveAt(trimSolution.Count - 1);
+                        trimSolution.RemoveAt(trimSolution.Count - 1);
+                        trimSolution.Add(diffCommand);
+                    }
+                }
+
+                //Console.WriteLine($"Command: {solution[i]}, Pos: {ship.Pos}, Vel: {ship.Velocity}");
+            }
+
+            return trimSolution;
         }
 
         private Point FindNearestPoint(Point currentPoint, List<Point> points)
