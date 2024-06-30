@@ -18,6 +18,7 @@ public class RandomLambdaManSolver
     {
         ConcurrentBag<(long[], int, int)> dataPills = [];
 
+        Console.WriteLine(origGrid.Name);
         Console.WriteLine("Total Pills: " + origGrid.Pills.Count);
 
         // Try all 2-digit seeds (base 94)
@@ -51,7 +52,7 @@ public class RandomLambdaManSolver
             return null;
         }
 
-        var solverOutput = TrySolve(data, true);
+        var solverOutput = TrySolve(data);
         long bestSeed = data[0];
         string solution = solverOutput.Item1[..steps];
         //Console.WriteLine(solution);
@@ -81,12 +82,12 @@ public class RandomLambdaManSolver
         return Apply(Apply(func, end), startSeed);
     }
 
-    private static (string, long[]) TrySolve(long[] data, bool vis = false)
+    private static (string, long[]) TrySolve(long[] data)
     {
         StringBuilder solution = new();
         long seed = data[0];
 
-        for (int i = 0; i < 1000000 - 17; i++)
+        while (solution.Length <= 1000000 - "solve lambdaman00 ".Length)
         {
             char dir = "UDLR"[(int)(seed % 4)];
             seed = seed * SEED_A % SEED_M;
