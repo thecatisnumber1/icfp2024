@@ -7,11 +7,11 @@ namespace ThreeDimensional
     {
         static void Main(string[] args)
         {
-            string problemName = "3d7";
+            string problemName = "3d8";
             string s = ReadProblem(problemName);
 
             //RegularizeFile($"{problemName}.3d");
-            RunWithVisualization(s, 122222);
+            RunWithVisualization(s, 8);
             
             //ProgramGrid submission = ProgramGrid.Parse(s);
             //string submissionString = $"solve {problemName}\n" + submission.ToMinimalString();

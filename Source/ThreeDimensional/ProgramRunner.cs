@@ -13,6 +13,7 @@ namespace ThreeDimensional
         private const int MaxTicks = 1_000_000;
         private int _timeWarpTick = -1;
         private bool[,] _written;
+        private bool[,] _timeWarpWritten;
 
         public ProgramRunner(ProgramGrid initialGrid)
         {
@@ -29,6 +30,7 @@ namespace ThreeDimensional
 
             var currentGrid = _history[_currentTick - 1];
             _written = new bool[currentGrid.Grid.Count, currentGrid.Grid[0].Count];
+            _timeWarpWritten = new bool[currentGrid.Grid.Count, currentGrid.Grid[0].Count];
             var nextGrid = ExecuteTick(currentGrid);
 
             if (_timeWarpTick != -1)
@@ -449,6 +451,12 @@ namespace ThreeDimensional
                 throw new ArgumentException("Invalid target coordinates for time warp");
             }
 
+            if (_timeWarpWritten[targetY, targetX])
+            {
+                throw new Exception("Writing multiple values to the same cell during time warp");
+            }
+
+            _timeWarpWritten[targetY, targetX] = true;
             targetGrid.Grid[targetY][targetX] = newValue;
         }
     }
