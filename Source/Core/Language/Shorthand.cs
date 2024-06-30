@@ -34,7 +34,7 @@ public static class Shorthand
     public static Expression RecursiveCall(Variable funcName, params Expression[] args)
     {
         Expression result = Apply(funcName, funcName);
-        for (int i = args.Length - 1; i >= 0; --i)
+        for (int i = 0; i < args.Length; i++)
         {
             result = Apply(result, args[i]);
         }
