@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Numerics;
 
 namespace ThreeDimensional
 {
@@ -198,7 +199,7 @@ namespace ThreeDimensional
         {
             var sb = new StringBuilder();
 
-            List<(int row, int col, int val)> cellValues = new List<(int row, int col, int val)>();
+            List<(int row, int col, BigInteger val)> cellValues = new List<(int row, int col, BigInteger val)>();
             if (Grid == null || Grid.Count == 0)
             {
                 return "Empty Grid";
