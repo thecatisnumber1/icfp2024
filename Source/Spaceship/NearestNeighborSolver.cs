@@ -1,4 +1,4 @@
-﻿using Spaceship;
+﻿using Point = Lib.PointInt;
 
 namespace Spaceship
 {
