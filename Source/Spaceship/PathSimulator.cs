@@ -19,7 +19,7 @@
                                   $"X={ship.X}, Y={ship.Y}, VX={ship.VX}, VY={ship.VY}");
             }
 
-            Console.WriteLine($"Final Position: {ship.GetPosition()}");
+            Console.WriteLine($"Final Position: {ship.Pos}");
         }
     }
 }
