@@ -121,5 +121,18 @@ namespace LambdaMan
             }
             return string.Join("\n", rows);
         }
+
+        public void DisplayClose((int x, int y) pos)
+        {
+            Console.Clear();
+
+            var rows = new List<string>();
+            for (int y = Math.Max(0, pos.y - 25); y < Math.Min(Height, pos.y + 25); y++)
+            {
+                var row = new string(Enumerable.Range(Math.Max(0, pos.x - 25), Math.Min(Width-1, pos.x + 25)).Select(x => Grid[y, x]).ToArray());
+                rows.Add(row);
+            }
+            Console.WriteLine(string.Join("\n", rows));
+        }
     }
 }
