@@ -27,6 +27,7 @@ public class Ship
 
     public void Move(int command)
     {
-        Pos += Command.GetVec(command);
+        Velocity += Command.GetVec(command);
+        Pos += Velocity;
     }
 }
