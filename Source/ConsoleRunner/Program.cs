@@ -163,6 +163,8 @@ if (args.Length == 0)
             else
             {
                 Console.WriteLine(value);
+
+                File.WriteAllText(Finder.GIT.GetRelativeFile("OUTPUT_THEIRS.txt").FullName, value);
             }
         }
         else if (cmd == "submit")

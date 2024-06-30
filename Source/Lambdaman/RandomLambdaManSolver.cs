@@ -1,5 +1,6 @@
 ﻿using Core;
 using LambdaMan;
+using Lib;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,7 +12,10 @@ namespace Lambdaman;
 
 public class RandomLambdaManSolver
 {
-    private const long SEED_A = 16807;
+//Min pills: 3
+//Best data: 878621275
+//Best steps: 999983
+    private const long SEED_A = 48271; //16807;
     private const long SEED_M = 2147483647;
 
     public static Expression? Solve(LambdaManGrid origGrid)
@@ -21,8 +25,10 @@ public class RandomLambdaManSolver
         Console.WriteLine(origGrid.Name);
         Console.WriteLine("Total Pills: " + origGrid.Pills.Count);
 
+        // solution 20 seed 483679 differs ???
+
         // Try all 2-digit seeds (base 94)
-        Parallel.For(0, 94 * 94, (i, state) =>
+        Parallel.For(483679, 94 * 94 * 94, (i, state) =>
         {
             var solverOutput = TrySolve([i]);
             var (pills, steps) = Simulate(solverOutput, origGrid);
@@ -46,52 +52,68 @@ public class RandomLambdaManSolver
         Console.WriteLine("Best data: " + string.Join(' ', data));
         Console.WriteLine("Best steps: " + steps);
 
+        var solverOutput = TrySolve(data);
+        long bestSeed = data[0];
+        //Simulate(solverOutput, origGrid, true);
+
         if (pills > 0)
         {
             // Pills left over, so no solution
             return null;
         }
 
-        var solverOutput = TrySolve(data);
-        long bestSeed = data[0];
         string solution = solverOutput.Item1[..steps];
-        //Console.WriteLine(solution);
-
-        //Simulate(solverOutput, origGrid, true);
+        File.WriteAllText(Finder.GIT.GetRelativeFile("OUTPUT_MINE.txt").FullName, solution);
 
         // Create an ICFP function that is equivalent to TrySolve
         var factorial = V("f");
         var i = V("i");
+        var offset = V("o");
         var seed = V("s");
 
         var seedA = I(SEED_A);
         var seedM = I(SEED_M);
+        var startOffset = I(0);
         var startSeed = I(bestSeed);
-        var end = I(solution.Length - 1);
+        var end = I(solution.Length / 2);
 
-        var func = RecursiveFunc(factorial, i, seed)(
+        var func = RecursiveFunc(factorial, i, offset, seed)(
             If(i < I(0),
                 S(""),
                 Concat(
-                    Take(I(1), Drop(seed % I(4), S("UDLR"))),
-                    RecursiveCall(factorial, i - I(1), (seed * seedA) % seedM)
+                    Take(I(2), Drop(((seed % I(2)) * I(2)) + offset, S("UUDDLLRR"))),
+                    RecursiveCall(factorial, i - I(1), (offset + I(4)) % I(8), (seed * seedA) % seedM)
                 )
             )
         );
 
-        return Apply(Apply(func, end), startSeed);
+        return Apply(Apply(Apply(func, end), startOffset), startSeed);
     }
 
     private static (string, long[]) TrySolve(long[] data)
     {
         StringBuilder solution = new();
         long seed = data[0];
+        char lastDir = 'R';
 
         while (solution.Length <= 1000000 - "solve lambdaman00 ".Length)
         {
-            char dir = "UDLR"[(int)(seed % 4)];
+            //char dir = "UDLR"[(int)(seed % 4)];
+            char dir;
+
+            if (lastDir == 'U' || lastDir == 'D')
+            {
+                dir = "LR"[(int)(seed % 2)];
+            }
+            else
+            {
+                dir = "UD"[(int)(seed % 2)];
+            }
+
             seed = seed * SEED_A % SEED_M;
             solution.Append(dir);
+            solution.Append(dir);
+            lastDir = dir;
         }
 
         return (solution.ToString(), data);
