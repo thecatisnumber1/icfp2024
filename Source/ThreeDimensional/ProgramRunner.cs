@@ -217,7 +217,7 @@ namespace ThreeDimensional
 
         private bool HasAdjacentValue(ProgramGrid grid, int x, int y)
         {
-            return IsValidPosition(grid, x, y) && grid.Grid[y][x].Type == CellType.Integer;
+            return IsValidPosition(grid, x, y);
         }
 
         private bool HasTimeWarpOperands(ProgramGrid grid, int x, int y)
