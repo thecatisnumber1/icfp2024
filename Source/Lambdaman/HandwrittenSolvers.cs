@@ -66,10 +66,8 @@ public class HandwrittenSolvers
         var s = V("s");
         var c = V("c");
 
-        var func = Lambda(f, Apply(f, Concat(
-            Concat(Apply(f, S("RR")), S("D")),
-            Concat(Apply(f, S("LL")), S("D")))));
-        var r49 = Lambda(r, Lambda(s, Apply(r, Apply(r, Apply(r, s)))));
+        var func = Lambda(f, Apply(f, Concat(Apply(f, S("RR")), Apply(f, S("LL")))));
+        var r49 = Lambda(r, Lambda(s, Concat(Apply(r, Apply(r, Apply(r, s))), S("D"))));
         var cc = Lambda(c, Concat(c, Concat(c, c)));
 
         return Concat(problem.SolvePrefix(), Apply(func, Apply(r49, cc)));
