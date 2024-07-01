@@ -7,19 +7,19 @@ namespace LambdaMan
 {
     internal class Program
     {
-        const bool SUBMIT = false;
+        const bool SUBMIT = true;
 
         static void Main(string[] args)
         {
             SolveAll(problem => problem.Number switch
             {
-                1 => null, // Tiny
-                2 => null, // Tiny
-                3 => null, // Tiny
-                4 => null, // Small maze
-                5 => null, // Small circular spiral
-                6 => null, // Straight right
-                7 => null, // Pacman level 1
+                1 => HandwrittenSolvers.Lambdaman1(problem), // Tiny
+                2 => HandwrittenSolvers.Lambdaman2(problem), // Tiny
+                3 => HandwrittenSolvers.Lambdaman3(problem), // Tiny
+                4 => null, // Small maze  RAND
+                5 => null, // Small circular spiral RAND
+                6 => HandwrittenSolvers.Lambdaman6(problem), // Straight right
+                7 => null, // Pacman level 1 RAND
                 8 => HandwrittenSolvers.Lambdaman8(problem), // Big rectangular spiral
                 9 => null, // Medium open space
                 10 => null, // Open space with regular blocks
@@ -68,8 +68,8 @@ namespace LambdaMan
                 }
 
                 Expression solveExpr;
-                string solvePrefix = $"solve {problem.Name} ";
-                string solvePrefixIcfp = S(solvePrefix).ToICFP();
+                Str solvePrefix = problem.SolvePrefix();
+                string solvePrefixIcfp = solvePrefix.ToICFP();
 
                 // If the solution does not contain the solve prefix, then prepend it
                 if (!expr.ToICFP().Contains(solvePrefixIcfp))
@@ -77,12 +77,12 @@ namespace LambdaMan
                     if (expr is Str s)
                     {
                         // If the solution is just a string, just add it to the string
-                        solveExpr = S($"{solvePrefix} {s.AsString()}");
+                        solveExpr = S($"{solvePrefix.AsString()}{s.AsString()}");
                     }
                     else
                     {
                         // Otherwise we need to use an ICFP concat
-                        solveExpr = Concat(S(solvePrefix), expr);
+                        solveExpr = Concat(solvePrefix, expr);
                         
                     }
                 }
@@ -103,9 +103,12 @@ namespace LambdaMan
                     continue;
                 }
 
-                if (expectedScore < scoreboard[problem.Name])
+                if (expectedScore >= scoreboard[problem.Name])
                 {
-                    Console.WriteLine($"Not submitting solution worse than best. Try harder.");
+                    if (expectedScore != scoreboard[problem.Name])
+                    {
+                        Console.WriteLine($"Not submitting solution worse than best. Try harder.");
+                    }
                     continue;
                 }
 

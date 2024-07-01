@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -28,6 +29,11 @@ namespace LambdaMan
             Grid = grid;
             StartPosition = startPosition;
             Pills = pills;
+        }
+
+        public Str SolvePrefix()
+        {
+            return Shorthand.S($"solve {Name} ");
         }
 
         private void ParseInput(List<string> prefiltered)
