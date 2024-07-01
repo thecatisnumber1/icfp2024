@@ -14,6 +14,13 @@ namespace LambdaMan
         {
             RandomOpts randopts;
 
+            var wut = HandwrittenSolvers.Lambdaman16(null);
+            var wutt = wut.ToICFP();
+            Console.WriteLine(wutt);
+            Console.WriteLine(wutt.Length);
+            //Console.WriteLine(wut.Eval().AsString().Length - 17);
+            Console.ReadLine();
+
             if (args.Length == 2)
             {
                 randopts = new(int.Parse(args[0]), int.Parse(args[1]));
@@ -36,7 +43,7 @@ namespace LambdaMan
                 9 => HandwrittenSolvers.Lambdaman9(problem), // Medium open space
                 10 => RandomLambdaManSolver.Solve(problem, randopts), // Open space with regular blocks
                 <= 15 => RandomLambdaManSolver.Solve(problem, randopts), // Large mazes
-                16 => RandomLambdaManSolver.Solve(problem, randopts), // Hilbert curve
+                16 => HandwrittenSolvers.Lambdaman16(problem), // Hilbert curve
                 17 => RandomLambdaManSolver.Solve(problem, randopts), // Medium space with long shafts
                 18 => RandomLambdaManSolver.Solve(problem, randopts), // Huge space with long shafts
                 19 => RandomLambdaManSolver.Solve(problem, randopts), // Large diamond fractal

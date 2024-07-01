@@ -1,4 +1,5 @@
-﻿using Core;
+
+using Core;
 using LambdaMan;
 using System;
 using System.Collections.Generic;
@@ -28,14 +29,15 @@ public class HandwrittenSolvers
 
     public static Expression? Lambdaman6(LambdaManGrid problem)
     {
-        // Go right 
-        var f = V("f");
+        var cat = V("d");
         var c = V("c");
+        var cc = V("cc");
 
-        var func = Lambda(f, Apply(f, Apply(f, Apply(f, S("RRRRRRRR")))));
-        var cc = Lambda(c, Concat(c, Concat(c, c)));
+        var outer = Lambda(cat, Apply(cat, Apply(cat, Apply(cat, S("RRRR")))));
+        var func = Lambda(c, Concat(Concat(c,c), Concat(c,c)));
+        var slv = Concat(S("solve lambdaman6 "), Apply(outer, func));
 
-        return Concat(problem.SolvePrefix(), Apply(func, cc)); ;
+        return slv;
     }
 
     public static Expression? Lambdaman8(LambdaManGrid problem)
@@ -61,15 +63,143 @@ public class HandwrittenSolvers
 
     public static Expression? Lambdaman9(LambdaManGrid problem)
     {
+        // The problem is an open rectangle scan lines, alternating going right then left.
         var f = V("f");
         var r = V("r");
         var s = V("s");
         var c = V("c");
 
-        var func = Lambda(f, Apply(f, Concat(Apply(f, S("RR")), Apply(f, S("LL")))));
+        var func = Lambda(f, Apply(f, Concat(
+            Apply(f, S("RR")),
+            Apply(f, S("LL")))));
+
         var r49 = Lambda(r, Lambda(s, Concat(Apply(r, Apply(r, Apply(r, s))), S("D"))));
+
         var cc = Lambda(c, Concat(c, Concat(c, c)));
 
-        return Concat(problem.SolvePrefix(), Apply(func, Apply(r49, cc)));
+        return Concat(S("solve lambdaman9 "), Apply(func, Apply(r49, cc)));
+
     }
+
+    public static Expression? Lambdaman16(LambdaManGrid problem)
+    {
+
+        var f = V("f");
+        var l = V("l");
+        var d = V("d");
+        var UP = I(0);
+        var LEFT = I(1);
+        var DOWN = I(2);
+        var RIGHT = I(3);
+
+
+        /* 
+        U=>0
+        L=>1
+        D=>2
+        R=>3
+        */
+        var func = RecursiveFunc(f, l, d)(
+            If((l == I(1)),
+                Take(I(6), Drop(d * I(6), S("DDRRUU RRDDLL UULLDD LLUURR".Replace(" ", "")))),
+ Concat(
+  Concat(
+    Concat(
+      RecursiveCall(f, l - I(1), StrToInt(Take(I(1),  Drop(d, S("badc"))))), // LURD
+      Take(I(2), Drop(I(2) * d, S("DDRRUULL")))), // DDRRUULL
+    Concat(
+      RecursiveCall(f, l - I(1), d), //ULDR
+      Take(I(2), Drop(I(2) * d, S("RRDDLLUU")))) // RRDDLLUU
+  ),
+  Concat(
+    Concat(
+      RecursiveCall(f, l - I(1), d), //ULDR
+      Take(I(2), Drop(I(2) * d, S("UULLDDRR")))), // UULLDDRR
+    RecursiveCall(f, l - I(1), StrToInt(Take(I(1), Drop(d, S("dcba"))))) //RDLU
+  )
+)
+                
+                ));
+        /*
+        If((d == UP),
+        Concat(
+          Concat(
+            Concat(
+              RecursiveCall(f, l - I(1), LEFT),
+              S("DD")),
+            Concat(
+              RecursiveCall(f, l - I(1), UP),
+              S("RR"))
+          ),
+          Concat(
+            Concat(
+              RecursiveCall(f, l - I(1), UP),
+              S("UU")),
+            RecursiveCall(f, l - I(1), RIGHT)
+          )
+        ),
+        If((d == LEFT),
+        Concat(
+          Concat(
+            Concat(
+              RecursiveCall(f, l - I(1), UP),
+              S("RR")),
+            Concat(
+              RecursiveCall(f, l - I(1), LEFT),
+              S("DD"))
+          ),
+          Concat(
+            Concat(
+              RecursiveCall(f, l - I(1), LEFT),
+              S("LL")),
+            RecursiveCall(f, l - I(1), DOWN)
+          )
+        ),
+        If((d == DOWN),
+        Concat(
+          Concat(
+            Concat(
+              RecursiveCall(f, l - I(1), RIGHT),
+              S("UU")),
+            Concat(
+              RecursiveCall(f, l - I(1), DOWN),
+              S("LL"))
+            ),
+          Concat(
+            Concat(
+              RecursiveCall(f, l - I(1), DOWN),
+              S("DD")),
+            RecursiveCall(f, l - I(1), LEFT)
+          )
+        ),
+
+                        // RIGHT
+        Concat(
+          Concat(
+            Concat(
+              RecursiveCall(f, l - I(1), DOWN),
+              S("LL")),
+            Concat(
+              RecursiveCall(f, l - I(1), RIGHT),
+              S("UU"))
+          ),
+          Concat(
+            Concat(
+              RecursiveCall(f, l - I(1), RIGHT),
+              S("RR")),
+            RecursiveCall(f, l - I(1), UP)
+          )
+        )
+        */
+
+
+
+
+
+
+
+        return Concat(S("solve lambdaman16 "), Apply(Apply(func, I(6)), UP));
+    }
+
 }
+
