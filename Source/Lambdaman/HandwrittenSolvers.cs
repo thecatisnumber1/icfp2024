@@ -99,88 +99,105 @@ public class HandwrittenSolvers
         R=>3
         */
         var func = RecursiveFunc(f, l, d)(
-            If( (l == I(1)),
+            If((l == I(1)),
                 Take(I(6), Drop(d * I(6), S("DDRRUU RRDDLL UULLDD LLUURR".Replace(" ", "")))),
-
-If((d == UP),
-Concat(
+ Concat(
   Concat(
     Concat(
-      RecursiveCall(f, l - I(1), LEFT),
-      S("DD")),
+      RecursiveCall(f, l - I(1), StrToInt(Take(I(1),  Drop(d, S("badc"))))), // LURD
+      Take(I(2), Drop(I(2) * d, S("DDRRUULL")))), // DDRRUULL
     Concat(
-      RecursiveCall(f, l - I(1), UP),
-      S("RR"))
+      RecursiveCall(f, l - I(1), d), //ULDR
+      Take(I(2), Drop(I(2) * d, S("RRDDLLUU")))) // RRDDLLUU
   ),
   Concat(
     Concat(
-      RecursiveCall(f, l - I(1), UP),
-      S("UU")),
-    RecursiveCall(f, l - I(1), RIGHT)
-  )
-),
-If((d == LEFT),
-Concat(
-  Concat(
-    Concat(
-      RecursiveCall(f, l - I(1), UP),
-      S("RR")),
-    Concat(
-      RecursiveCall(f, l - I(1), LEFT),
-      S("DD"))
-  ),
-  Concat(
-    Concat(
-      RecursiveCall(f, l - I(1), LEFT),
-      S("LL")),
-    RecursiveCall(f, l - I(1), DOWN)
-  )
-),
-If((d == DOWN),
-Concat(
-  Concat(
-    Concat(
-      RecursiveCall(f, l - I(1), RIGHT),
-      S("UU")),
-    Concat(
-      RecursiveCall(f, l - I(1), DOWN),
-      S("LL"))
-    ),
-  Concat(
-    Concat(
-      RecursiveCall(f, l - I(1), DOWN),
-      S("DD")),
-    RecursiveCall(f, l - I(1), LEFT)
-  )
-),
-
-Concat(
-  Concat(
-    Concat(
-      RecursiveCall(f, l - I(1), DOWN),
-      S("LL")),
-    Concat(
-      RecursiveCall(f, l - I(1), RIGHT),
-      S("UU"))
-  ),
-  Concat(
-    Concat(
-      RecursiveCall(f, l - I(1), RIGHT),
-      S("RR")),
-    RecursiveCall(f, l - I(1), UP)
+      RecursiveCall(f, l - I(1), d), //ULDR
+      Take(I(2), Drop(I(2) * d, S("UULLDDRR")))), // UULLDDRR
+    RecursiveCall(f, l - I(1), StrToInt(Take(I(1), Drop(d, S("dcba"))))) //RDLU
   )
 )
+                
+                ));
+        /*
+        If((d == UP),
+        Concat(
+          Concat(
+            Concat(
+              RecursiveCall(f, l - I(1), LEFT),
+              S("DD")),
+            Concat(
+              RecursiveCall(f, l - I(1), UP),
+              S("RR"))
+          ),
+          Concat(
+            Concat(
+              RecursiveCall(f, l - I(1), UP),
+              S("UU")),
+            RecursiveCall(f, l - I(1), RIGHT)
+          )
+        ),
+        If((d == LEFT),
+        Concat(
+          Concat(
+            Concat(
+              RecursiveCall(f, l - I(1), UP),
+              S("RR")),
+            Concat(
+              RecursiveCall(f, l - I(1), LEFT),
+              S("DD"))
+          ),
+          Concat(
+            Concat(
+              RecursiveCall(f, l - I(1), LEFT),
+              S("LL")),
+            RecursiveCall(f, l - I(1), DOWN)
+          )
+        ),
+        If((d == DOWN),
+        Concat(
+          Concat(
+            Concat(
+              RecursiveCall(f, l - I(1), RIGHT),
+              S("UU")),
+            Concat(
+              RecursiveCall(f, l - I(1), DOWN),
+              S("LL"))
+            ),
+          Concat(
+            Concat(
+              RecursiveCall(f, l - I(1), DOWN),
+              S("DD")),
+            RecursiveCall(f, l - I(1), LEFT)
+          )
+        ),
+
+                        // RIGHT
+        Concat(
+          Concat(
+            Concat(
+              RecursiveCall(f, l - I(1), DOWN),
+              S("LL")),
+            Concat(
+              RecursiveCall(f, l - I(1), RIGHT),
+              S("UU"))
+          ),
+          Concat(
+            Concat(
+              RecursiveCall(f, l - I(1), RIGHT),
+              S("RR")),
+            RecursiveCall(f, l - I(1), UP)
+          )
+        )
+        */
 
 
-//DOWN:
-)))));
 
 
 
 
 
-
-        return Concat(S("solve lambdaman16 "), Apply(Apply(func, I(2)), UP));
+        return Concat(S("solve lambdaman16 "), Apply(Apply(func, I(6)), UP));
     }
 
 }
