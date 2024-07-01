@@ -32,11 +32,11 @@ public class RandomLambdaManSolver
         Console.WriteLine(problem.Name);
         Console.WriteLine("Total Pills: " + problem.Pills.Count);
 
-        // Try all 2-digit seeds (base 94), except 0 which is degenerate
-        Parallel.For(1, 94 * 94, (seed, state) =>
+        // Try all solvers
+        foreach (var (movesMaker, exprMaker) in RAND_SOLVERS)
         {
-            // Try all solvers
-            foreach (var (movesMaker, exprMaker) in RAND_SOLVERS)
+            // Try all 2-digit seeds (base 94), except 0 which is degenerate
+            Parallel.For(1, 94 * 94, (seed, state) =>
             {
                 string randMoves = movesMaker(problem, seed);
                 var (pills, steps) = Simulate(randMoves, problem);
@@ -47,9 +47,10 @@ public class RandomLambdaManSolver
                     var expr = exprMaker(problem, seed, solution);
 
                     solved.Add((seed, randMoves, expr));
+                    state.Stop();
                 }
-            }
-        });
+            });
+        }
 
         if (solved.IsEmpty)
         {

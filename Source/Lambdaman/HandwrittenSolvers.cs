@@ -64,4 +64,29 @@ public class HandwrittenSolvers
 
         return Apply(recFunc, I(9603));
     }
+    // B. S3/,6%},!-"$!-!.^} B$ B$ L! B$ v! v! Lf Li ? B= vi I! SL B. B$ B$ vf vf B- vi I" ? B= IR B% vi IS S> BT I" BD B% B/ vi IS I# SLF I;W
+
+    public static Expression? Lambdaman9(LambdaManGrid problem)
+    {
+        // The problem is an open rectangle scan lines, alternating going right then left.
+        var func = V("f");
+        var vi = V("i");
+
+        var recFunc = RecursiveFunc(func, vi)(
+            If((vi == I(0)),
+                problem.SolvePrefix(),
+                Concat(
+                    RecursiveCall(func, vi - I(1)),
+                    If((vi % I(50) == I(49)),
+                        // Go down at the end of every line
+                        S("D"),
+                        // Alternate between going right on a line and left on a line
+                        Take(I(1), Drop((vi / I(50)) % I(2), S("RL")))
+                    )
+                )
+            )
+        );
+
+        return Apply(recFunc, I(2498));
+    }
 }

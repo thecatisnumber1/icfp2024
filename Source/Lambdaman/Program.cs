@@ -16,20 +16,20 @@ namespace LambdaMan
                 1 => HandwrittenSolvers.Lambdaman1(problem), // Tiny
                 2 => HandwrittenSolvers.Lambdaman2(problem), // Tiny
                 3 => HandwrittenSolvers.Lambdaman3(problem), // Tiny
-                4 => null, // Small maze  RAND
-                5 => null, // Small circular spiral RAND
+                4 => RandomLambdaManSolver.Solve(problem), // Small maze
+                5 => RandomLambdaManSolver.Solve(problem), // Small circular spiral
                 6 => HandwrittenSolvers.Lambdaman6(problem), // Straight right
-                7 => null, // Pacman level 1 RAND
+                7 => RandomLambdaManSolver.Solve(problem), // Pacman level 1
                 8 => HandwrittenSolvers.Lambdaman8(problem), // Big rectangular spiral
                 9 => null, // Medium open space
-                10 => null, // Open space with regular blocks
+                10 => RandomLambdaManSolver.Solve(problem), // Open space with regular blocks
                 <= 15 => RandomLambdaManSolver.Solve(problem), // Large mazes
-                16 => null, // Hilbert curve
-                17 => null, // Medium space with long shafts
-                18 => null, // Huge space with long shafts
-                19 => null, // Large diamond fractal
-                20 => null, // Large  diamond fractal
-                21 => null, // Open space with "3D"
+                16 => RandomLambdaManSolver.Solve(problem), // Hilbert curve
+                17 => RandomLambdaManSolver.Solve(problem), // Medium space with long shafts
+                18 => RandomLambdaManSolver.Solve(problem), // Huge space with long shafts
+                19 => RandomLambdaManSolver.Solve(problem), // Large diamond fractal
+                20 => RandomLambdaManSolver.Solve(problem), // Large  diamond fractal
+                21 => RandomLambdaManSolver.Solve(problem), // Open space with "3D"
                 _ => throw new ArgumentException("Unknown problem: " + problem.Number)
             });
         }
