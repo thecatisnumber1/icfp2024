@@ -28,20 +28,15 @@ public class HandwrittenSolvers
 
     public static Expression? Lambdaman6(LambdaManGrid problem)
     {
-        var func = V("f");
-        var vi = V("i");
+        var cat = V("d");
+        var c = V("c");
+        var cc = V("cc");
 
-        var recFunc = RecursiveFunc(func, vi)(
-            If((vi == I(0)),
-                problem.SolvePrefix(),
-                Concat(
-                    RecursiveCall(func, vi - I(1)),
-                    S("R")
-                )
-            )
-        );
+        var outer = Lambda(cat, Apply(cat, Apply(cat, Apply(cat, S("RRRR")))));
+        var func = Lambda(c, Concat(Concat(c,c), Concat(c,c)));
+        var slv = Concat(S("solve lambdaman6 "), Apply(outer, func));
 
-        return Apply(recFunc, I(200));
+        return slv;
     }
 
     public static Expression? Lambdaman8(LambdaManGrid problem)
@@ -68,24 +63,124 @@ public class HandwrittenSolvers
     public static Expression? Lambdaman9(LambdaManGrid problem)
     {
         // The problem is an open rectangle scan lines, alternating going right then left.
-        var func = V("f");
-        var vi = V("i");
+        var f = V("f");
+        var r = V("r");
+        var s = V("s");
+        var c = V("c");
 
-        var recFunc = RecursiveFunc(func, vi)(
-            If((vi == I(0)),
-                problem.SolvePrefix(),
-                Concat(
-                    RecursiveCall(func, vi - I(1)),
-                    If((vi % I(50) == I(49)),
-                        // Go down at the end of every line
-                        S("D"),
-                        // Alternate between going right on a line and left on a line
-                        Take(I(1), Drop((vi / I(50)) % I(2), S("RL")))
-                    )
-                )
-            )
-        );
+        var func = Lambda(f, Apply(f, Concat(
+            Apply(f, S("RR")),
+            Apply(f, S("LL")))));
 
-        return Apply(recFunc, I(2498));
+        var r49 = Lambda(r, Lambda(s, Concat(Apply(r, Apply(r, Apply(r, s))), S("D"))));
+
+        var cc = Lambda(c, Concat(c, Concat(c, c)));
+
+        return Concat(S("solve lambdaman9 "), Apply(func, Apply(r49, cc)));
+
     }
+
+    public static Expression? Lambdaman16(LambdaManGrid problem)
+    {
+
+        var f = V("f");
+        var l = V("l");
+        var d = V("d");
+        var UP = I(0);
+        var LEFT = I(1);
+        var DOWN = I(2);
+        var RIGHT = I(3);
+
+
+        /* 
+        U=>0
+        L=>1
+        D=>2
+        R=>3
+        */
+        var func = RecursiveFunc(f, l, d)(
+            If( (l == I(1)),
+                Take(I(6), Drop(d * I(6), S("DDRRUU RRDDLL UULLDD LLUURR".Replace(" ", "")))),
+
+If((d == UP),
+Concat(
+  Concat(
+    Concat(
+      RecursiveCall(f, l - I(1), LEFT),
+      S("DD")),
+    Concat(
+      RecursiveCall(f, l - I(1), UP),
+      S("RR"))
+  ),
+  Concat(
+    Concat(
+      RecursiveCall(f, l - I(1), UP),
+      S("UU")),
+    RecursiveCall(f, l - I(1), RIGHT)
+  )
+),
+If((d == LEFT),
+Concat(
+  Concat(
+    Concat(
+      RecursiveCall(f, l - I(1), UP),
+      S("RR")),
+    Concat(
+      RecursiveCall(f, l - I(1), LEFT),
+      S("DD"))
+  ),
+  Concat(
+    Concat(
+      RecursiveCall(f, l - I(1), LEFT),
+      S("LL")),
+    RecursiveCall(f, l - I(1), DOWN)
+  )
+),
+If((d == DOWN),
+Concat(
+  Concat(
+    Concat(
+      RecursiveCall(f, l - I(1), RIGHT),
+      S("UU")),
+    Concat(
+      RecursiveCall(f, l - I(1), DOWN),
+      S("LL"))
+    ),
+  Concat(
+    Concat(
+      RecursiveCall(f, l - I(1), DOWN),
+      S("DD")),
+    RecursiveCall(f, l - I(1), LEFT)
+  )
+),
+
+Concat(
+  Concat(
+    Concat(
+      RecursiveCall(f, l - I(1), DOWN),
+      S("LL")),
+    Concat(
+      RecursiveCall(f, l - I(1), RIGHT),
+      S("UU"))
+  ),
+  Concat(
+    Concat(
+      RecursiveCall(f, l - I(1), RIGHT),
+      S("RR")),
+    RecursiveCall(f, l - I(1), UP)
+  )
+)
+
+
+//DOWN:
+)))));
+
+
+
+
+
+
+        return Concat(S("solve lambdaman16 "), Apply(Apply(func, I(2)), UP));
+    }
+
 }
