@@ -2,6 +2,7 @@
 using Lambdaman;
 using Lib;
 using static Core.Shorthand;
+using static Lambdaman.RandomLambdaManSolver;
 
 namespace LambdaMan
 {
@@ -11,37 +12,38 @@ namespace LambdaMan
 
         static void Main(string[] args)
         {
+            RandomOpts randopts;
+
+            if (args.Length == 2)
+            {
+                randopts = new(int.Parse(args[0]), int.Parse(args[1]));
+            }
+            else
+            {
+                randopts = new(1, (94 * 94) - 1);
+            }
+
             SolveAll(problem => problem.Number switch
             {
                 1 => HandwrittenSolvers.Lambdaman1(problem), // Tiny
                 2 => HandwrittenSolvers.Lambdaman2(problem), // Tiny
                 3 => HandwrittenSolvers.Lambdaman3(problem), // Tiny
-                4 => RandomLambdaManSolver.Solve(problem), // Small maze
-                5 => RandomLambdaManSolver.Solve(problem), // Small circular spiral
+                4 => RandomLambdaManSolver.Solve(problem, randopts), // Small maze
+                5 => RandomLambdaManSolver.Solve(problem, randopts), // Small circular spiral
                 6 => HandwrittenSolvers.Lambdaman6(problem), // Straight right
-                7 => RandomLambdaManSolver.Solve(problem), // Pacman level 1
+                7 => RandomLambdaManSolver.Solve(problem, randopts), // Pacman level 1
                 8 => HandwrittenSolvers.Lambdaman8(problem), // Big rectangular spiral
                 9 => null, // Medium open space
-                10 => RandomLambdaManSolver.Solve(problem), // Open space with regular blocks
-                <= 15 => RandomLambdaManSolver.Solve(problem), // Large mazes
-                16 => RandomLambdaManSolver.Solve(problem), // Hilbert curve
-                17 => RandomLambdaManSolver.Solve(problem), // Medium space with long shafts
-                18 => RandomLambdaManSolver.Solve(problem), // Huge space with long shafts
-                19 => RandomLambdaManSolver.Solve(problem), // Large diamond fractal
-                20 => RandomLambdaManSolver.Solve(problem), // Large  diamond fractal
-                21 => RandomLambdaManSolver.Solve(problem), // Open space with "3D"
+                10 => RandomLambdaManSolver.Solve(problem, randopts), // Open space with regular blocks
+                <= 15 => RandomLambdaManSolver.Solve(problem, randopts), // Large mazes
+                16 => RandomLambdaManSolver.Solve(problem, randopts), // Hilbert curve
+                17 => RandomLambdaManSolver.Solve(problem, randopts), // Medium space with long shafts
+                18 => RandomLambdaManSolver.Solve(problem, randopts), // Huge space with long shafts
+                19 => RandomLambdaManSolver.Solve(problem, randopts), // Large diamond fractal
+                20 => RandomLambdaManSolver.Solve(problem, randopts), // Large  diamond fractal
+                21 => RandomLambdaManSolver.Solve(problem, randopts), // Open space with "3D"
                 _ => throw new ArgumentException("Unknown problem: " + problem.Number)
             });
-        }
-
-        static void SolveAllUsingRandom()
-        {
-            SolveAll(problem => RandomLambdaManSolver.Solve(problem));
-        }
-
-        static void SolveAllUsingRawPaths()
-        {
-            SolveAll(problem => S(LambdaManSolver.Solve(problem)));
         }
 
         static void SolveAll(Func<LambdaManGrid, Expression?> solver)

@@ -12,6 +12,8 @@ namespace Lambdaman;
 
 public class RandomLambdaManSolver
 {
+    public record struct RandomOpts(int StartSeed, int EndSeed) { }
+
     private const long SEED_A = 48271; //16807;
     private const long SEED_M = 2147483647;
 
@@ -21,15 +23,15 @@ public class RandomLambdaManSolver
         (RandMovesTwoStepsTurnsOnly, ExprTwoStepsTurnsOnly),
     ];
 
-    public static Expression? Solve(LambdaManGrid problem)
+    public static Expression? Solve(LambdaManGrid problem, RandomOpts opts)
     {
         ConcurrentBag<(long, string, Expression)> solved = [];
 
         // Try all solvers
         foreach (var (solver, exprMaker) in RAND_SOLVERS)
         {
-            // Try all 2-digit seeds (base 94), except 0 which is degenerate
-            Parallel.For(1, 94 * 94, (seed, state) =>
+            // Try the specified range of seeds
+            Parallel.For(opts.StartSeed, opts.EndSeed + 1, (seed, state) =>
             {
                 var (pills, solution) = solver(problem, seed);
 
