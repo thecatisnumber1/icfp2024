@@ -12,9 +12,6 @@ namespace Lambdaman;
 
 public class RandomLambdaManSolver
 {
-//Min pills: 3
-//Best data: 878621275
-//Best steps: 999983
     private const long SEED_A = 48271; //16807;
     private const long SEED_M = 2147483647;
 
@@ -25,10 +22,8 @@ public class RandomLambdaManSolver
         Console.WriteLine(origGrid.Name);
         Console.WriteLine("Total Pills: " + origGrid.Pills.Count);
 
-        // solution 20 seed 483679 differs ???
-
         // Try all 2-digit seeds (base 94)
-        Parallel.For(483679, 94 * 94 * 94, (i, state) =>
+        Parallel.For(0, 94 * 94, (i, state) =>
         {
             var solverOutput = TrySolve([i]);
             var (pills, steps) = Simulate(solverOutput, origGrid);
@@ -68,26 +63,43 @@ public class RandomLambdaManSolver
         // Create an ICFP function that is equivalent to TrySolve
         var factorial = V("f");
         var i = V("i");
-        var offset = V("o");
         var seed = V("s");
 
         var seedA = I(SEED_A);
         var seedM = I(SEED_M);
-        var startOffset = I(0);
         var startSeed = I(bestSeed);
-        var end = I(solution.Length / 2);
 
-        var func = RecursiveFunc(factorial, i, offset, seed)(
+        // Two steps, left/right turns only
+        //var offset = V("o");
+        //var startOffset = I(0);
+        //var end = I(solution.Length / 2);
+        //var func = RecursiveFunc(factorial, i, offset, seed)(
+        //    If(i < I(0),
+        //        S(""),
+        //        Concat(
+        //            Take(I(2), Drop(((seed % I(2)) * I(2)) + offset, S("UUDDLLRR"))),
+        //            RecursiveCall(factorial, i - I(1), (offset + I(4)) % I(8), (seed * seedA) % seedM)
+        //        )
+        //    )
+        //);
+
+        // One step, no backwards
+        var prev = V("p");
+        var startPrev = S("R");
+        var end = I(solution.Length - 1);
+        var func = RecursiveFunc(factorial, i, prev, seed)(
             If(i < I(0),
                 S(""),
                 Concat(
-                    Take(I(2), Drop(((seed % I(2)) * I(2)) + offset, S("UUDDLLRR"))),
-                    RecursiveCall(factorial, i - I(1), (offset + I(4)) % I(8), (seed * seedA) % seedM)
+                    Take(I(1), Drop(seed % I(3), Concat(prev, If((prev == S("D") | prev == S("U")), S("LR"), S("UD"))))),
+                    RecursiveCall(factorial, i - I(1),
+                        Take(I(1), Drop(seed % I(3), Concat(prev, If((prev == S("D") | prev == S("U")), S("LR"), S("UD"))))),
+                        (seed * seedA) % seedM)
                 )
             )
         );
 
-        return Apply(Apply(Apply(func, end), startOffset), startSeed);
+        return Apply(Apply(Apply(func, end), startPrev), startSeed);
     }
 
     private static (string, long[]) TrySolve(long[] data)
@@ -103,15 +115,14 @@ public class RandomLambdaManSolver
 
             if (lastDir == 'U' || lastDir == 'D')
             {
-                dir = "LR"[(int)(seed % 2)];
+                dir = (lastDir + "LR")[(int)(seed % 3)];
             }
             else
             {
-                dir = "UD"[(int)(seed % 2)];
+                dir = (lastDir + "UD")[(int)(seed % 3)];
             }
 
             seed = seed * SEED_A % SEED_M;
-            solution.Append(dir);
             solution.Append(dir);
             lastDir = dir;
         }

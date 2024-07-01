@@ -12,16 +12,19 @@ namespace LambdaMan
         public int Width => Grid.GetLength(1);
         public int Height => Grid.GetLength(0);
         public string Name { get; private set; }
+        public int Number { get; private set; }
 
         public LambdaManGrid(string name, List<string> input)
         {
             Name = name;
+            Number = int.Parse(name.Replace("lambdaman", ""));
             ParseInput(input);
         }
 
         private LambdaManGrid(string name, char[,] grid, (int X, int Y) startPosition, List<(int X, int Y)> pills)
         {
             Name = name;
+            Number = int.Parse(name.Replace("lambdaman", ""));
             Grid = grid;
             StartPosition = startPosition;
             Pills = pills;
