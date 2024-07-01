@@ -5,8 +5,6 @@ namespace Spaceship;
 
 public class Ship
 {
-
-
     public Point Pos { get; private set; }
     /// <summary>
     /// This is double-precision to represent an integer velocity.
@@ -16,8 +14,8 @@ public class Ship
 
     public int X { get { return Pos.X; } }
     public int Y { get { return Pos.Y; } }
-    public int VX { get { return (int)Math.Round(Velocity.X); } }
-    public int VY { get { return (int)Math.Round(Velocity.Y); } }
+    public int VX { get { return Velocity.X; } }
+    public int VY { get { return Velocity.Y; } }
 
     public Ship()
     {

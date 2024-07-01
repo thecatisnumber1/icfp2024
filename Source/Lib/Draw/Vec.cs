@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents a 2D vector with double-precision coordinates.
 /// </summary>
-public readonly record struct Vec(double X, double Y)
+public readonly record struct Vec(int X, int Y)
 {
     public static readonly Vec ZERO = new(0, 0);
     public static readonly Vec WEST = new(-1, 0);
@@ -27,16 +27,10 @@ public readonly record struct Vec(double X, double Y)
     public static Vec operator *(int scale, Vec v)
         => new(scale * v.X, scale * v.Y);
 
-    public static Vec operator *(double scale, Vec v)
-        => new(scale * v.X, scale * v.Y);
-
     public static Vec operator *(Vec v, int scale)
         => scale * v;
 
-    public static Vec operator *(Vec v, double scale)
-        => scale * v;
-
-    public static Vec operator /(Vec v, double scale)
+    public static Vec operator /(Vec v, int scale)
         => new(v.X / scale, v.Y / scale);
 
     #endregion
@@ -51,8 +45,8 @@ public readonly record struct Vec(double X, double Y)
     public bool IsClose(Vec other, double tolerance = 1e-6)
         => Math.Abs(X - other.X) < tolerance && Math.Abs(Y - other.Y) < tolerance;
 
-    public readonly double MagnitudeSq
-        => X * X + Y * Y;
+    public readonly long MagnitudeSq
+        => (long)X * X + (long)Y * Y;
 
     public readonly double Magnitude
         => Math.Sqrt(MagnitudeSq);
@@ -65,9 +59,6 @@ public readonly record struct Vec(double X, double Y)
 
     public double DotProduct(Vec b)
         => X * b.X + Y * b.Y;
-
-    public Vec Normalized()
-        => this / Magnitude;
 
     /// <summary>
     /// Rotates this vector 90 degrees clockwise.

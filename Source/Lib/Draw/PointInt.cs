@@ -28,7 +28,7 @@ public readonly record struct PointInt(int X, int Y)
 
     public override string ToString() => $"({X}, {Y})";
 
-    public readonly double DistSq(PointInt other)
+    public readonly long DistSq(PointInt other)
         => (this - other).MagnitudeSq;
 
     public readonly double Dist(PointInt other)
