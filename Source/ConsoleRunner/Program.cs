@@ -1,10 +1,10 @@
-﻿// See https://aka.ms/new-console-template for more information
-using ConsoleRunner;
+﻿using ConsoleRunner;
 using Core;
 using Lib;
 using Runner;
 using System.Text;
 using System.Text.RegularExpressions;
+using static Core.Shorthand;
 
 if (args.Length == 0)
 {
