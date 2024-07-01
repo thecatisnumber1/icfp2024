@@ -51,6 +51,10 @@ namespace LambdaMan
 
             foreach (var problem in problems.OrderBy(p => p.Number))
             {
+                Console.WriteLine();
+                Console.WriteLine(problem.Name);
+                Console.WriteLine("Total Pills: " + problem.Pills.Count);
+
                 // Solve
                 var expr = solver(problem.Duplicate());
 

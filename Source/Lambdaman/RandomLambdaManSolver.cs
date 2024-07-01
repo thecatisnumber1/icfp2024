@@ -1,16 +1,12 @@
-﻿using Core;
+﻿using ConsoleRunner;
+using Core;
 using LambdaMan;
 using Lib;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using static Core.Shorthand;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
-using MovesMaker = System.Func<LambdaMan.LambdaManGrid, long, string>;
 using ExprMaker = System.Func<LambdaMan.LambdaManGrid, long, string, Core.Expression>;
+using Solver = System.Func<LambdaMan.LambdaManGrid, long, (int, string)>;
 
 namespace Lambdaman;
 
@@ -19,34 +15,29 @@ public class RandomLambdaManSolver
     private const long SEED_A = 48271; //16807;
     private const long SEED_M = 2147483647;
 
-    private static readonly List<(MovesMaker, ExprMaker)> RAND_SOLVERS = [
+    private static readonly List<(Solver, ExprMaker)> RAND_SOLVERS = [
         (RandMovesSimple, ExprSimple),
         (RandMovesOneStepNoBackwards, ExprOneStepNoBackwards),
-        //(RandMovesTwoStepsTurnsOnly, ExprTwoStepsTurnsOnly),
+        (RandMovesTwoStepsTurnsOnly, ExprTwoStepsTurnsOnly),
     ];
 
     public static Expression? Solve(LambdaManGrid problem)
     {
         ConcurrentBag<(long, string, Expression)> solved = [];
 
-        Console.WriteLine(problem.Name);
-        Console.WriteLine("Total Pills: " + problem.Pills.Count);
-
         // Try all solvers
-        foreach (var (movesMaker, exprMaker) in RAND_SOLVERS)
+        foreach (var (solver, exprMaker) in RAND_SOLVERS)
         {
             // Try all 2-digit seeds (base 94), except 0 which is degenerate
             Parallel.For(1, 94 * 94, (seed, state) =>
             {
-                string randMoves = movesMaker(problem, seed);
-                var (pills, steps) = Simulate(randMoves, problem);
+                var (pills, solution) = solver(problem, seed);
 
                 if (pills == 0)
                 {
-                    string solution = randMoves[..steps];
                     var expr = exprMaker(problem, seed, solution);
 
-                    solved.Add((seed, randMoves, expr));
+                    solved.Add((seed, solution, expr));
                     state.Stop();
                 }
             });
@@ -65,8 +56,17 @@ public class RandomLambdaManSolver
         Console.WriteLine("Best steps: " + bestSolution.Length);
         Console.WriteLine("Best expr length: " + bestExpr.ToICFP().Length);
 
-        //Simulate(solverOutput, origGrid, true);
-        //File.WriteAllText(Finder.GIT.GetRelativeFile("OUTPUT_MINE.txt").FullName, bestSolution);
+        // Validate that evaluating the expression matches what we expect
+        string? evalSolution = Communicator.Eval(bestExpr.ToICFP());
+
+        if (evalSolution != bestSolution)
+        {
+            Console.WriteLine("~~~EVAL MISMATCH!!! Check equivalency~~~");
+            File.WriteAllText(Finder.GIT.GetRelativeFile("OUTPUT_MINE.txt").FullName, bestSolution);
+            File.WriteAllText(Finder.GIT.GetRelativeFile("OUTPUT_THEIRS.txt").FullName, evalSolution);
+
+            return null;
+        }
 
         return bestExpr;
     }
@@ -76,13 +76,13 @@ public class RandomLambdaManSolver
         return 1000000 - problem.SolvePrefix().AsString().Length;
     }
 
-    private static string RandMovesOneStepNoBackwards(LambdaManGrid problem, long seed)
+    private static (int, string) RandMovesOneStepNoBackwards(LambdaManGrid problem, long seed)
     {
-        StringBuilder solution = new();
+        StringBuilder moves = new();
         char lastDir = 'R';
         int maxLength = MaxSolutionLength(problem);
 
-        while (solution.Length <= maxLength)
+        while (moves.Length <= maxLength)
         {
             char dir;
 
@@ -96,16 +96,20 @@ public class RandomLambdaManSolver
             }
 
             seed = seed * SEED_A % SEED_M;
-            solution.Append(dir);
+            moves.Append(dir);
             lastDir = dir;
         }
 
-        return solution.ToString();
+        string movesStr = moves.ToString();
+        var (pills, steps) = Simulate(movesStr, problem);
+        string solution = movesStr[..steps];
+
+        return (pills, solution);
     }
 
     private static Expression ExprOneStepNoBackwards(LambdaManGrid problem, long bestSeed, string solution)
     {
-        var factorial = V("f");
+        var f = V("f");
         var vi = V("i");
         var seed = V("s");
 
@@ -116,12 +120,12 @@ public class RandomLambdaManSolver
         var prev = V("p");
         var startPrev = S("R");
         var end = I(solution.Length - 1);
-        var func = RecursiveFunc(factorial, vi, prev, seed)(
+        var func = RecursiveFunc(f, vi, prev, seed)(
             If(vi < I(0),
                 S(""),
                 Concat(
                     Take(I(1), Drop(seed % I(3), Concat(prev, If((prev == S("D") | prev == S("U")), S("LR"), S("UD"))))),
-                    RecursiveCall(factorial, vi - I(1),
+                    RecursiveCall(f, vi - I(1),
                         Take(I(1), Drop(seed % I(3), Concat(prev, If((prev == S("D") | prev == S("U")), S("LR"), S("UD"))))),
                         (seed * seedA) % seedM)
                 )
@@ -131,16 +135,33 @@ public class RandomLambdaManSolver
         return Apply(Apply(Apply(func, end), startPrev), startSeed);
     }
 
-    private static string RandMovesTwoStepsTurnsOnly(LambdaManGrid problem, long seed)
+    private static (int, string) RandMovesTwoStepsTurnsOnly(LambdaManGrid problem, long seed)
     {
-        // TODO
-        return null;
+        StringBuilder moves = new();
+        int maxLength = MaxSolutionLength(problem);
+        int offset = 0;
+
+        while (moves.Length <= maxLength)
+        {
+            string dir = "UUDDLLRR"[(((int)(seed % 2) * 2) + offset)..][..2];
+
+            seed = seed * SEED_A % SEED_M;
+            moves.Append(dir);
+            offset = (offset + 4) % 8;
+        }
+
+        string movesStr = moves.ToString();
+        var (pills, steps) = Simulate(movesStr, problem);
+        // Ensure even number of steps
+        string solution = movesStr[..(steps + steps % 2)];
+
+        return (pills, solution);
     }
 
     private static Expression ExprTwoStepsTurnsOnly(LambdaManGrid problem, long bestSeed, string solution)
     {
         // Two steps, left/ right turns only
-        var factorial = V("f");
+        var f = V("f");
         var vi = V("i");
         var seed = V("s");
 
@@ -150,39 +171,43 @@ public class RandomLambdaManSolver
 
         var offset = V("o");
         var startOffset = I(0);
-        var end = I(solution.Length / 2 + 1);
-        var func = RecursiveFunc(factorial, vi, offset, seed)(
-            If(vi < I(0),
+        var end = I(solution.Length / 2);
+        var func = RecursiveFunc(f, vi, offset, seed)(
+            If(vi == I(0),
                 S(""),
                 Concat(
                     Take(I(2), Drop(((seed % I(2)) * I(2)) + offset, S("UUDDLLRR"))),
-                    RecursiveCall(factorial, vi - I(1), (offset + I(4)) % I(8), (seed * seedA) % seedM)
+                    RecursiveCall(f, vi - I(1), (offset + I(4)) % I(8), (seed * seedA) % seedM)
                 )
             )
         );
 
-        return Apply(Apply(Apply(func, end), offset), startSeed);
+        return Apply(Apply(Apply(func, end), startOffset), startSeed);
     }
 
-    private static string RandMovesSimple(LambdaManGrid problem, long seed)
+    private static (int, string) RandMovesSimple(LambdaManGrid problem, long seed)
     {
-        StringBuilder solution = new();
+        StringBuilder moves = new();
         int maxLength = MaxSolutionLength(problem);
 
         for (int i = 0; i < maxLength; i++)
         {
             char dir = "UDLR"[(int)(seed % 4)];
             seed = seed * SEED_A % SEED_M;
-            solution.Append(dir);
+            moves.Append(dir);
         }
 
-        return solution.ToString();
+        string movesStr = moves.ToString();
+        var (pills, steps) = Simulate(movesStr, problem);
+        string solution = movesStr[..steps];
+
+        return (pills, solution);
     }
 
     private static Expression ExprSimple(LambdaManGrid problem, long bestSeed, string solution)
     {
         // Fully random one-step moves
-        var factorial = V("f");
+        var f = V("f");
         var vi = V("i");
         var seed = V("s");
 
@@ -191,12 +216,12 @@ public class RandomLambdaManSolver
         var startSeed = I(bestSeed);
         var end = I(solution.Length - 1);
 
-        var func = RecursiveFunc(factorial, vi, seed)(
+        var func = RecursiveFunc(f, vi, seed)(
             If(vi < I(0),
                 S(""),
                 Concat(
                     Take(I(1), Drop(seed % I(4), S("UDLR"))),
-                    RecursiveCall(factorial, vi - I(1), (seed * seedA) % seedM)
+                    RecursiveCall(f, vi - I(1), (seed * seedA) % seedM)
                 )
             )
         );

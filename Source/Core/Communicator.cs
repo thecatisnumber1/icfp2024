@@ -38,4 +38,31 @@ public static class Communicator
 
         return icfpReply;
     }
+
+    public static string? Eval(string icfp, bool isNumExpr = false)
+    {
+        // For normal echo, prefix command with U$ to convert number to string
+        // because B. only works for string args
+        string intToStr = isNumExpr ? "U$ " : "";
+        // Send to the "echo" command
+        string? icfpReply = Communicator.Send("B. S%#(/} " + intToStr + icfp);
+
+        if (icfpReply == null)
+        {
+            return null;
+        }
+
+        string reply = Expression.Parse(icfpReply).Eval().ToString() ?? "";
+        string value = reply.Replace("You scored some points for using the echo service!", "").Trim();
+
+        if (isNumExpr)
+        {
+            // Undo the U$ we used by applying a U#
+            return new Unary('#', Str.Make(value)).Eval().ToString();
+        }
+        else
+        {
+            return value;
+        }
+    }
 }

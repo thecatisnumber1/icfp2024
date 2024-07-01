@@ -142,29 +142,11 @@ if (args.Length == 0)
         }
         else if (cmd.StartsWith("echo"))
         {
-            // For normal echo, prefix command with U$ to convert number to string
-            // because B. only works for string args
-            string intToStr = (cmd == "echo") ? "U$ " : "";
-            string? icfpReply = Communicator.Send("B. S%#(/} " + intToStr + cmdargs);
+            string? value = Communicator.Eval(cmdargs, cmd == "echo");
 
-            if (icfpReply == null)
-            {
-                continue;
-            }
-
-            string reply = Expression.Parse(icfpReply).Eval().ToString() ?? "";
-            string value = reply.Replace("You scored some points for using the echo service!", "").Trim();
-
-            if (cmd == "echo")
-            {
-                // Undo the U$ we used by applying a U#
-                Console.WriteLine(new Unary('#', Str.Make(value)).Eval());
-            }
-            else
+            if (value != null)
             {
                 Console.WriteLine(value);
-
-                File.WriteAllText(Finder.GIT.GetRelativeFile("OUTPUT_THEIRS.txt").FullName, value);
             }
         }
         else if (cmd == "submit")

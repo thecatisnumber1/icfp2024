@@ -29,14 +29,13 @@ public class HandwrittenSolvers
     public static Expression? Lambdaman6(LambdaManGrid problem)
     {
         var func = V("f");
-        var n = V("n");
+        var vi = V("i");
 
-        var recFunc = RecursiveFunc(func, n)(
-            If(
-                (n == I(0)),
+        var recFunc = RecursiveFunc(func, vi)(
+            If((vi == I(0)),
                 problem.SolvePrefix(),
                 Concat(
-                    RecursiveCall(func, n - I(1)),
+                    RecursiveCall(func, vi - I(1)),
                     S("R")
                 )
             )
