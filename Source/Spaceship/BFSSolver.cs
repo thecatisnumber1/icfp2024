@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Point = Lib.PointInt;
 using Lib;
+using System.Collections.Immutable;
+
 
 namespace Spaceship
 {
@@ -57,16 +59,14 @@ namespace Spaceship
             }
         }
 
-
-        // TODO: For performance, we want a better list copy.
         public List<int> GetPathToFirstPoint(Ship ship, List<Point> toVisit, int maxSearchLength)
         {
-            Queue<(Point pos, Vec v, int vCount, List<int> commands)> toExplore = new();
+            Queue<(Point pos, Vec v, int vCount, ImmutableStack<int> commands, int pathLength)> toExplore = new();
             HashSet<(Point pos, Vec v, int vCount)> visited = new();
-            toExplore.Enqueue((ship.Pos, ship.Velocity, 0, new List<int>()));
+            toExplore.Enqueue((ship.Pos, ship.Velocity, 0, ImmutableStack<int>.Empty, 0));
             while (toExplore.Count > 0)
             {
-                var (pos, v, vCount, commands) = toExplore.Dequeue();
+                var (pos, v, vCount, commands, pathLength) = toExplore.Dequeue();
                 if (visited.Contains((pos, v, vCount)))
                 {
                     continue;
@@ -78,8 +78,8 @@ namespace Spaceship
                     Vec nextV = v + Command.GetVec(i);
                     Point nextPos = pos + nextV;
                     int nextVCount = vCount;
-                    List<int> nextCommands = new List<int>(commands);
-                    nextCommands.Add(i);
+                    var nextCommands = commands.Push(i);
+                    int nextPathLength = pathLength + 1;
                     if (toVisit[vCount] == nextPos)
                     {
                         nextVCount++;
@@ -87,12 +87,12 @@ namespace Spaceship
 
                     if (nextVCount == toVisit.Count)
                     {
-                        return nextCommands;
+                        return nextCommands.Reverse().ToList();
                     }
 
-                    if (nextCommands.Count < maxSearchLength)
+                    if (pathLength < maxSearchLength)
                     {
-                        toExplore.Enqueue((nextPos, nextV, nextVCount, nextCommands));
+                        toExplore.Enqueue((nextPos, nextV, nextVCount, nextCommands, nextPathLength));
                     }
                 }
             }
