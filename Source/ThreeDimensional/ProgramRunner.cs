@@ -133,7 +133,9 @@ namespace ThreeDimensional
                                 break;
                             case '@':
                                 if (HasTimeWarpOperands(currentGrid, capturedX, capturedY))
-                                    operations.Add(() => TimeWarp(nextGrid, capturedX, capturedY));
+                                {
+                                    operations.Add(() => TimeWarp(currentGrid, nextGrid, capturedX, capturedY));
+                                }
                                 break;
                                 // 'A', 'B', and 'S' don't have specific actions in ExecuteTick
                         }
@@ -192,7 +194,7 @@ namespace ThreeDimensional
 
         private bool HasAdjacentValue(ProgramGrid grid, int x, int y)
         {
-            return IsValidPosition(grid, x, y);
+            return IsValidPosition(grid, x, y) && grid.Grid[y][x].Type != CellType.Empty;
         }
 
         private bool HasTimeWarpOperands(ProgramGrid grid, int x, int y)
@@ -336,9 +338,9 @@ namespace ThreeDimensional
             }
         }
 
-        private void TimeWarp(ProgramGrid grid, BigInteger x, BigInteger y)
+        private void TimeWarp(ProgramGrid currentGrid, ProgramGrid nextGrid, BigInteger x, BigInteger y)
         {
-            if (TryGetTimeWarpOperands(grid, x, y, out BigInteger dx, out BigInteger dy, out BigInteger dt, out Cell v))
+            if (TryGetTimeWarpOperands(currentGrid, x, y, out BigInteger dx, out BigInteger dy, out BigInteger dt, out Cell v))
             {
                 TimeWarp(dt, x - dx, y - dy, v);
             }
@@ -442,7 +444,7 @@ namespace ThreeDimensional
             if (targetY < 0 || targetY >= targetGrid.Grid.Count ||
                 targetX < 0 || targetX >= targetGrid.Grid[targetY].Count)
             {
-                throw new ArgumentException("Invalid target coordinates for time warp");
+                return; // lolz
             }
 
             if (_timeWarpWritten[targetY, targetX])
