@@ -35,7 +35,7 @@ public class HandwrittenSolvers
         var func = Lambda(f, Apply(f, Apply(f, Apply(f, S("RRRRRRRR")))));
         var cc = Lambda(c, Concat(c, Concat(c, c)));
 
-        return Concat(S("solve lambdaman6 "), Apply(func, cc)); ;
+        return Concat(problem.SolvePrefix(), Apply(func, cc)); ;
     }
 
     public static Expression? Lambdaman8(LambdaManGrid problem)
@@ -61,25 +61,17 @@ public class HandwrittenSolvers
 
     public static Expression? Lambdaman9(LambdaManGrid problem)
     {
-        // The problem is an open rectangle scan lines, alternating going right then left.
-        var func = V("f");
-        var vi = V("i");
+        var f = V("f");
+        var r = V("r");
+        var s = V("s");
+        var c = V("c");
 
-        var recFunc = RecursiveFunc(func, vi)(
-            If((vi == I(0)),
-                problem.SolvePrefix(),
-                Concat(
-                    RecursiveCall(func, vi - I(1)),
-                    If((vi % I(50) == I(49)),
-                        // Go down at the end of every line
-                        S("D"),
-                        // Alternate between going right on a line and left on a line
-                        Take(I(1), Drop((vi / I(50)) % I(2), S("RL")))
-                    )
-                )
-            )
-        );
+        var func = Lambda(f, Apply(f, Concat(
+            Concat(Apply(f, S("RR")), S("D")),
+            Concat(Apply(f, S("LL")), S("D")))));
+        var r49 = Lambda(r, Lambda(s, Apply(r, Apply(r, Apply(r, s)))));
+        var cc = Lambda(c, Concat(c, Concat(c, c)));
 
-        return Apply(recFunc, I(2498));
+        return Concat(problem.SolvePrefix(), Apply(func, Apply(r49, cc)));
     }
 }

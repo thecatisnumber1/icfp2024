@@ -33,7 +33,7 @@ namespace LambdaMan
                 6 => HandwrittenSolvers.Lambdaman6(problem), // Straight right
                 7 => RandomLambdaManSolver.Solve(problem, randopts), // Pacman level 1
                 8 => HandwrittenSolvers.Lambdaman8(problem), // Big rectangular spiral
-                9 => null, // Medium open space
+                9 => HandwrittenSolvers.Lambdaman9(problem), // Medium open space
                 10 => RandomLambdaManSolver.Solve(problem, randopts), // Open space with regular blocks
                 <= 15 => RandomLambdaManSolver.Solve(problem, randopts), // Large mazes
                 16 => RandomLambdaManSolver.Solve(problem, randopts), // Hilbert curve
