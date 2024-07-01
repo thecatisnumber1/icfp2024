@@ -14,13 +14,6 @@ namespace LambdaMan
         {
             RandomOpts randopts;
 
-            var wut = HandwrittenSolvers.Lambdaman16(null);
-            var wutt = wut.ToICFP();
-            Console.WriteLine(wutt);
-            Console.WriteLine(wutt.Length);
-            //Console.WriteLine(wut.Eval().AsString().Length - 17);
-            Console.ReadLine();
-
             if (args.Length == 2)
             {
                 randopts = new(int.Parse(args[0]), int.Parse(args[1]));
