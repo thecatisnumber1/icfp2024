@@ -62,11 +62,11 @@ For most of these, we just formatted the code nicer and looked at what it was do
 4. 40th fibonacci number
 5. Mersenne prime > 1,000,000
 6. Index of the fibonacci prime > 30 (42)
-7. 7.cnf Converted the boolean expressions to Dimacs and threw it at Kissat
-8. 7.cnf Converted the boolean expressions to Dimacs and threw it at Kissat
-9. 9.py: Threw the non Sudoku at Z3. Was dissapointed. Thought harder and then added more constraints. Then ran to a fixed point using Bash.
-10. 10.py: Threw the Sudoku at Z3. 
-11. 11.py: Threw the Sudoku at Z3. Had to search for the smallest solution.
+7. py/7.cnf Converted the boolean expressions to Dimacs and threw it at Kissat
+8. py/7.cnf Converted the boolean expressions to Dimacs and threw it at Kissat
+9. py/9.py: Threw the non Sudoku at Z3. Was dissapointed. Thought harder and then added more constraints. Then ran to a fixed point using Bash.
+10. py/10.py: Threw the Sudoku at Z3. 
+11. py/11.py: Threw the Sudoku at Z3. Had to search for the smallest solution.
 12. Euler's Totient Function phi(1234567)+1
 13. len('na'*(2**28)+'heyjude') (536870919)
 
